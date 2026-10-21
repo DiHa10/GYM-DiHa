@@ -106,7 +106,17 @@
       <h2>📚 Thư viện bài tập</h2>
       <input id="lib-search" type="search" placeholder="Tìm bài (VD: squat, đẩy ngực)…" aria-label="Tìm bài tập">
       <div id="lib-groups" class="chips"></div>
-      <p class="hint">Chạm vào bài để xem chuyển động và cách tập. Tick ô bên phải để chọn nhiều bài.</p>
+      <div id="lib-subs" class="chips subs"></div>
+      <div class="row between lib-tools">
+        <span class="hint">🦴 Khớp · 🎯 Dễ tập · 🔥 Hiệu quả</span>
+        <select id="lib-sort" aria-label="Sắp xếp bài tập">
+          <option value="">Sắp xếp: mặc định</option>
+          <option value="0">🦴 Thân thiện khớp</option>
+          <option value="1">🎯 Dễ tập nhất</option>
+          <option value="2">🔥 Hiệu quả nhất</option>
+        </select>
+      </div>
+      <p class="hint">Chạm vào bài để xem chuyển động, cách tập và điểm sao. Tick ô bên phải để chọn nhiều bài.</p>
       <div id="lib-list"></div>
       <div id="lib-bar" class="lib-bar" hidden>
         <b id="lib-count"></b>

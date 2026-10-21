@@ -3,7 +3,7 @@ import {
   streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
 } from './logic.js';
 import { mascotSvg, ACTIONS } from './mascot.js';
-import { LIBRARY, NO_PHOTO, photoSlug, groupFor } from './library.js';
+import { LIBRARY, NO_PHOTO, photoSlug, groupFor, groupItems, RATINGS, RATING_LABELS } from './library.js';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -123,7 +123,7 @@ function render() {
   $('#backup-banner').hidden = !(sessions.length >= 5 && Date.now() - (data.lastBackup || 0) > 14 * 864e5);
 
   // History
-  const libNames = LIBRARY.flatMap(g => g.items.map(i => i[0]));
+  const libNames = LIBRARY.flatMap(g => groupItems(g).map(i => i[0]));
   $('#ex-names').innerHTML = [...new Set([...sessions.flatMap(s => s.exercises.map(e => e.name)), ...libNames])].map(n => `<option value="${esc(n)}">`).join('');
   $('#history').innerHTML = [...sessions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60).map(s => `
     <div class="item"><div class="row"><b>${fmtDate(s.date)}</b><span><button class="small" data-edit-session="${s.id}">Sửa</button> <button class="small" data-del-session="${s.id}">Xóa</button></span></div>
@@ -376,34 +376,51 @@ $('#theme-btn').onclick = () => {
 };
 
 // ---------- Exercise library ----------
-let libGroup = LIBRARY[0].group, libOpen = null, libDay = null;
+let libGroup = LIBRARY[0].group, libSub = '', libOpen = null, libDay = null; // libSub '' = all sub-areas
 const libSel = new Set();
 const photo = (name, cls = '') => NO_PHOTO.has(name)
   ? `<div class="anim ${cls}" aria-hidden="true">🤸</div>`
   : `<div class="anim ${cls}"><img src="ex/${photoSlug(name)}-0.jpg" alt="${esc(name)} – tư thế đầu" loading="lazy"><img src="ex/${photoSlug(name)}-1.jpg" alt="" loading="lazy"></div>`;
 
+const stars = n => `<span class="stars" aria-label="${n} trên 5 sao">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span>`;
+
+function libItem([name, vi, cue, sub], best, showSub) {
+  const pr = best[name.toLowerCase()], r = RATINGS[name];
+  return `<div class="lib-item ${libSel.has(name) ? 'sel' : ''}" data-name="${esc(name)}">
+    ${photo(name)}
+    <div class="lib-text"><b>${esc(name)}</b><small>${vi}${showSub ? ' · ' + sub : ''}</small>
+      <span class="mini">🦴${r[0]} 🎯${r[1]} 🔥${r[2]}</span>${pr ? `<span class="pr">🏆 Kỷ lục ${pr} kg</span>` : ''}</div>
+    <input type="checkbox" data-ex="${esc(name)}" ${libSel.has(name) ? 'checked' : ''} aria-label="Chọn ${esc(name)}">
+    ${libOpen === name ? `<div class="lib-detail">${photo(name)}
+      ${RATING_LABELS.map(([ic, label], k) => `<div class="stars-row"><span>${ic}</span><span>${label}</span>${stars(r[k])}</div>`).join('')}
+      <p>📋 ${cue}</p></div>` : ''}
+  </div>`;
+}
+
 function drawLibrary() {
   const q = $('#lib-search').value.trim().toLowerCase(), best = personalRecords(data.sessions).best;
-  $('#lib-groups').innerHTML = LIBRARY.map(g => `<button class="chip ${!q && g.group === libGroup ? 'on' : ''}" type="button" data-group="${g.group}">${g.icon} ${g.group}</button>`).join('');
-  const items = q
-    ? LIBRARY.flatMap(g => g.items.filter(i => `${i[0]} ${i[1]} ${g.group}`.toLowerCase().includes(q)))
-    : LIBRARY.find(g => g.group === libGroup).items;
-  $('#lib-list').innerHTML = items.map(([name, vi, cue]) => {
-    const pr = best[name.toLowerCase()];
-    return `<div class="lib-item ${libSel.has(name) ? 'sel' : ''}" data-name="${esc(name)}">
-      ${photo(name)}
-      <div class="lib-text"><b>${esc(name)}</b><small>${vi}</small>${pr ? `<span class="pr">🏆 Kỷ lục ${pr} kg</span>` : ''}</div>
-      <input type="checkbox" data-ex="${esc(name)}" ${libSel.has(name) ? 'checked' : ''} aria-label="Chọn ${esc(name)}">
-      ${libOpen === name ? `<div class="lib-detail">${photo(name)}<p>📋 ${cue}</p></div>` : ''}
-    </div>`;
-  }).join('') || '<p class="hint">Không tìm thấy bài nào.</p>';
+  const sortKey = $('#lib-sort').value, g = LIBRARY.find(x => x.group === libGroup);
+  const sorted = list => sortKey === '' ? list : [...list].sort((a, b) => RATINGS[b[0]][sortKey] - RATINGS[a[0]][sortKey]);
+  $('#lib-groups').innerHTML = LIBRARY.map(x => `<button class="chip ${!q && x.group === libGroup ? 'on' : ''}" type="button" data-group="${x.group}">${x.icon} ${x.group}</button>`).join('');
+  $('#lib-subs').innerHTML = q ? '' : ['', ...g.subs.map(s => s[0])].map(s => `<button class="chip ${s === libSub ? 'on' : ''}" type="button" data-sub="${s}">${s || 'Tất cả'}</button>`).join('');
+  let html;
+  if (q) {
+    html = sorted(LIBRARY.flatMap(x => groupItems(x).filter(i => `${i[0]} ${i[1]} ${i[3]} ${x.group}`.toLowerCase().includes(q))))
+      .map(i => libItem(i, best, true)).join('');
+  } else if (libSub) {
+    html = sorted(groupItems(g).filter(i => i[3] === libSub)).map(i => libItem(i, best)).join('');
+  } else {
+    html = g.subs.map(([sub]) => `<h3 class="lib-sec">${sub}</h3>` + sorted(groupItems(g).filter(i => i[3] === sub)).map(i => libItem(i, best)).join('')).join('');
+  }
+  $('#lib-list').innerHTML = (html || '<p class="hint">Không tìm thấy bài nào.</p>') +
+    '<p class="hint rating-note">Điểm sao mang tính tham khảo cho người khỏe mạnh. Có chấn thương thì hỏi bác sĩ hoặc HLV.</p>';
   $('#lib-day').innerHTML = WEEK_ORDER.map(d => `<option value="${d}" ${d === libDay ? 'selected' : ''}>${DAY_NAMES[d]}${data.settings.plan[d] ? ' · ' + esc(data.settings.plan[d]) : ''}</option>`).join('');
   $('#lib-bar').hidden = !libSel.size;
   $('#lib-count').textContent = `Đã chọn ${libSel.size}`;
 }
 
 function openLibrary(group, day) {
-  if (group) libGroup = group;
+  if (group && group !== libGroup) { libGroup = group; libSub = ''; }
   libDay = day;
   $('#lib-search').value = '';
   drawLibrary();
@@ -413,8 +430,13 @@ function openLibrary(group, day) {
 $('#lib-search').oninput = drawLibrary;
 $('#lib-groups').onclick = e => {
   const g = e.target.closest('[data-group]')?.dataset.group;
-  if (g) { libGroup = g; $('#lib-search').value = ''; drawLibrary(); }
+  if (g) { libGroup = g; libSub = ''; $('#lib-search').value = ''; drawLibrary(); }
 };
+$('#lib-subs').onclick = e => {
+  const b = e.target.closest('[data-sub]');
+  if (b) { libSub = b.dataset.sub; drawLibrary(); }
+};
+$('#lib-sort').onchange = drawLibrary;
 $('#lib-list').onclick = e => {
   const item = e.target.closest('.lib-item');
   if (!item || e.target.matches('input')) return;
