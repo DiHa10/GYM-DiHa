@@ -3,9 +3,13 @@
   --accent: #4a7fa7; --accent-2: #6a74a8; --accent-soft: #e6eef5; --ok: #5a9e8f; --warn: #c9a24a; --bad: #c06060;
   --grad: linear-gradient(135deg, #5b8db8, #6a7cb0);
 }
+/* Dark: follows the phone unless the user picked a theme (data-theme on <html>) */
 @media (prefers-color-scheme: dark) {
-  :root { --bg: #11161f; --card: #1a212c; --text: #dfe5ec; --muted: #8d99a8; --line: #2a3340; --accent: #7fa8c9; --accent-2: #9aa2cc; --accent-soft: #1d2a38; --ok: #5f9c8f; }
+  :root:not([data-theme="light"]) { --bg: #11161f; --card: #1a212c; --text: #dfe5ec; --muted: #8d99a8; --line: #2a3340; --accent: #7fa8c9; --accent-2: #9aa2cc; --accent-soft: #1d2a38; --ok: #5f9c8f; color-scheme: dark; }
 }
+:root[data-theme="dark"] { --bg: #11161f; --card: #1a212c; --text: #dfe5ec; --muted: #8d99a8; --line: #2a3340; --accent: #7fa8c9; --accent-2: #9aa2cc; --accent-soft: #1d2a38; --ok: #5f9c8f; color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+.theme-btn { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: max(10px, calc(50% - 250px)); z-index: 6; margin: 0; width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 1.1rem; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 520px; margin: 0 auto; padding: 16px 16px 96px; }

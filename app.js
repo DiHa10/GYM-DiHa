@@ -205,7 +205,7 @@ function addSetRow(box, reps = '', kg = '') {
     <button class="small check" type="button" aria-label="Xong set, bắt đầu nghỉ">✓</button>
     <button class="small del" type="button" aria-label="Xóa set">✕</button>`;
   row.querySelector('.del').onclick = () => row.remove();
-  row.querySelector('.check').onclick = () => { if (row.classList.toggle('done')) startRest(); };
+  row.querySelector('.check').onclick = () => { if (row.classList.toggle('done')) { navigator.vibrate?.(30); startRest(); } };
   box.append(row);
 }
 
@@ -359,13 +359,52 @@ document.addEventListener('click', e => {
   if (b && confirm('Xóa số đo này?')) { data.body = data.body.filter(x => x.id !== b); save(); }
 });
 
+// ---------- Theme: auto (follow phone) -> light -> dark ----------
+const THEMES = { auto: ['🌓', 'Tự động theo máy'], light: ['☀️', 'Sáng'], dark: ['🌙', 'Tối'] };
+function applyTheme(t) {
+  if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+  try { t === 'auto' ? localStorage.removeItem('theme') : localStorage.setItem('theme', t); } catch {}
+  $('#theme-btn').textContent = THEMES[t][0];
+  $('#theme-btn').setAttribute('aria-label', `Chế độ màu: ${THEMES[t][1]}. Chạm để đổi`);
+  return t;
+}
+let theme = applyTheme(document.documentElement.dataset.theme || 'auto');
+$('#theme-btn').onclick = () => {
+  theme = applyTheme({ auto: 'light', light: 'dark', dark: 'auto' }[theme]);
+  toast(`${THEMES[theme][0]} Chế độ: ${THEMES[theme][1]}`);
+};
+
 // ---------- Navigation ----------
-function go(tab) {
+// Android Back: any tab -> Home -> exit. History holds at most [home, current tab].
+let currentTab = 'home';
+function show(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === tab));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.go === tab));
   scrollTo(0, 0);
+  currentTab = tab;
+  updateWakeLock();
 }
+function go(tab) {
+  if (tab === currentTab) return show(tab);
+  if (tab === 'home') return history.state?.tab && history.state.tab !== 'home' ? history.back() : show('home');
+  currentTab === 'home' ? history.pushState({ tab }, '') : history.replaceState({ tab }, '');
+  show(tab);
+}
+addEventListener('popstate', e => show(e.state?.tab || 'home'));
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+
+// Keep the screen on while logging a workout or resting, so the timer is not delayed by the phone sleeping
+let wakeLock = null;
+async function updateWakeLock() {
+  const want = document.visibilityState === 'visible' && (currentTab === 'log' || !$('#rest').hidden);
+  try {
+    if (want && !wakeLock && navigator.wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } else if (!want && wakeLock) await wakeLock.release();
+  } catch { wakeLock = null; }
+}
+document.addEventListener('visibilitychange', updateWakeLock);
 
 // ---------- Rest timer between sets ----------
 // shortcut: timers are throttled in background tabs, so the end alert can be late while the app is hidden
@@ -375,8 +414,9 @@ function startRest(sec = data.settings.rest) {
   restEnd = Date.now() + sec * 1000;
   $('#rest').hidden = false;
   clearInterval(restTimer); restTimer = setInterval(tickRest, 250); tickRest();
+  updateWakeLock();
 }
-function stopRest() { clearInterval(restTimer); $('#rest').hidden = true; }
+function stopRest() { clearInterval(restTimer); $('#rest').hidden = true; updateWakeLock(); }
 function tickRest() {
   const left = Math.ceil((restEnd - Date.now()) / 1000);
   $('#rest-left').textContent = Math.max(0, left);
@@ -420,8 +460,12 @@ if ('serviceWorker' in navigator) {
     if (e.data === 'updated' && hadSW) toast('✨ Có bản mới. Chạm để tải lại', () => location.reload());
   });
 }
+navigator.storage?.persist?.(); // ask Android not to evict app data when storage runs low
 $('#b-date').value = ymd(new Date());
 resetLog();
+const startTab = new URLSearchParams(location.search).get('tab');
+history.replaceState({ tab: 'home' }, '', location.pathname); // also drops ?tab= from home-screen shortcuts
+if (['log', 'plan', 'body', 'badges'].includes(startTab)) go(startTab);
 checkReminder();
 setInterval(checkReminder, 60_000);
 document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && checkReminder());
