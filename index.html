@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4a7fa7">
+  <title>Gym Man</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <section id="home" class="tab active">
+      <div id="banner" class="banner" hidden></div>
+      <div id="backup-banner" class="banner soft" hidden role="button" tabindex="0">💾 Đã lâu chưa sao lưu dữ liệu. Chạm để mở phần Sao lưu.</div>
+      <div class="card mascot-card" role="button" tabindex="0" aria-label="Chạm để man đổi động tác">
+        <div id="mascot"></div>
+        <p id="mascot-msg" class="msg"></p>
+        <small id="mascot-action"></small>
+      </div>
+      <div class="card quote">
+        <div class="row between"><small>💬 Động lực hôm nay</small><button id="new-quote" class="small" aria-label="Đổi câu khác">🔄 Câu khác</button></div>
+        <p id="quote"></p>
+        <p id="quote-author" class="author"></p>
+      </div>
+      <div class="card">
+        <div class="row between"><h2>Tuần này</h2><b id="week-count"></b></div>
+        <div class="bar"><div id="week-bar"></div></div>
+        <div id="week-days" class="week"></div>
+      </div>
+      <div class="stats">
+        <div class="card stat"><b id="streak"></b><span>tuần liền đủ buổi 🔥</span></div>
+        <div class="card stat"><b id="total"></b><span>buổi đã tập 💪</span></div>
+      </div>
+      <button class="primary big" data-go="log">+ Ghi buổi tập hôm nay</button>
+    </section>
+
+    <section id="log" class="tab">
+      <div class="card">
+        <h2>Ghi buổi tập</h2>
+        <p id="editing" class="hint" hidden>✏️ Đang sửa buổi <b></b> <button class="small" id="cancel-edit" type="button">Hủy sửa</button></p>
+        <label>Ngày <input type="date" id="log-date"></label>
+        <div id="exercises"></div>
+        <datalist id="ex-names"></datalist>
+        <button id="add-ex">+ Thêm bài tập</button>
+        <button id="save-log" class="primary">Lưu buổi tập</button>
+        <p class="hint">Không có thời gian ghi chi tiết? Cứ bấm Lưu để đánh dấu đã tập.</p>
+      </div>
+      <h2>Lịch sử</h2>
+      <div id="history"></div>
+    </section>
+
+    <section id="plan" class="tab">
+      <div class="card">
+        <h2>Lịch tập tuần</h2>
+        <p class="hint">Ghi sẵn bài tập cho từng ngày, khi ghi buổi tập app sẽ tự điền kèm số set/kg lần trước.</p>
+        <div id="plan-days"></div>
+        <label>Mục tiêu số buổi/tuần <input type="number" id="goal" min="1" max="7"></label>
+        <label>Giờ tập (giờ nhắc) <input type="time" id="time"></label>
+      </div>
+      <div class="card">
+        <h2>Nhắc nhở</h2>
+        <p class="hint"><b>Cách chắc chắn nhất:</b> tải file lịch rồi mở nó trên điện thoại để thêm vào Lịch (Google Calendar / iPhone). Lịch sẽ báo đúng giờ, kể cả khi bạn không mở app. Mỗi lần đổi lịch tập thì tải lại file này.</p>
+        <button id="dl-ics" class="primary">📅 Tải lịch nhắc (.ics)</button>
+        <p class="hint">Ngoài ra app sẽ báo khi bạn đang mở app mà đã qua giờ tập.</p>
+        <button id="notif">🔔 Bật thông báo trong app</button>
+      </div>
+      <div class="card">
+        <h2>Sao lưu</h2>
+        <p class="hint">Dữ liệu chỉ lưu trên máy này. Thỉnh thoảng nên xuất file sao lưu.</p>
+        <div class="row">
+          <button id="export">Xuất file</button>
+          <label class="btn">Nhập file<input type="file" id="import" accept=".json" hidden></label>
+        </div>
+      </div>
+    </section>
+
+    <section id="body" class="tab">
+      <div id="body-cheer" class="banner"></div>
+      <div class="card">
+        <div class="row between"><h2>BMI</h2><label class="inline">Chiều cao (cm) <input type="number" id="b-height" min="100" max="250" inputmode="numeric"></label></div>
+        <div id="bmi"></div>
+      </div>
+      <div class="card">
+        <h2>Cân nặng & số đo</h2>
+        <div class="row">
+          <label>Ngày <input type="date" id="b-date"></label>
+          <label>Cân (kg) <input type="number" id="b-weight" step="0.1" inputmode="decimal"></label>
+          <label>Vòng bụng (cm) <input type="number" id="b-waist" step="0.5" inputmode="decimal"></label>
+        </div>
+        <button id="save-body" class="primary">Lưu</button>
+      </div>
+      <div class="card">
+        <div class="row between"><h2>Tiến bộ bài tập</h2><select id="ex-select" aria-label="Chọn bài tập"></select></div>
+        <div id="chart-ex"></div>
+      </div>
+      <div class="card"><h2>Cân nặng</h2><div id="chart"></div></div>
+      <div class="card"><h2>Vòng bụng</h2><div id="chart-waist"></div></div>
+      <div id="body-list"></div>
+    </section>
+
+    <section id="badges" class="tab">
+      <h2>Thành tích</h2>
+      <div id="badge-grid" class="badges"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button data-go="home" class="active">🏠<span>Hôm nay</span></button>
+    <button data-go="log">🏋️<span>Tập</span></button>
+    <button data-go="plan">📅<span>Lịch</span></button>
+    <button data-go="body">⚖️<span>Cơ thể</span></button>
+    <button data-go="badges">🏆<span>Thành tích</span></button>
+  </nav>
+  <div id="rest" class="rest" hidden>
+    <span>⏱ Nghỉ <b id="rest-left">90</b>s</span>
+    <span class="row"><button class="small" data-rest="60">60</button><button class="small" data-rest="90">90</button><button class="small" data-rest="120">120</button><button class="small" id="rest-skip">Bỏ qua</button></span>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
