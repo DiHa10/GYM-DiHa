@@ -9,7 +9,9 @@
 }
 :root[data-theme="dark"] { --bg: #11161f; --card: #1a212c; --text: #dfe5ec; --muted: #8d99a8; --line: #2a3340; --accent: #7fa8c9; --accent-2: #9aa2cc; --accent-soft: #1d2a38; --ok: #5f9c8f; color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
-.theme-btn { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: max(10px, calc(50% - 250px)); z-index: 6; margin: 0; width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 1.1rem; box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; padding-top: env(safe-area-inset-top); }
+.topbar b { font-size: 1.05rem; }
+.theme-btn { margin: 0; width: 38px; height: 38px; padding: 0; border-radius: 50%; font-size: 1.05rem; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 520px; margin: 0 auto; padding: 16px 16px 96px; }
@@ -101,7 +103,7 @@ nav button.active { color: var(--accent); }
 
 /* Exercise library */
 #lib-search { margin-bottom: 4px; }
-.chips { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; scrollbar-width: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
 .chip { white-space: nowrap; border-radius: 99px; margin: 0; padding: 6px 12px; font-size: .9rem; }
 .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 .lib-item { display: grid; grid-template-columns: 76px 1fr auto; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px; margin-bottom: 8px; }
@@ -114,9 +116,14 @@ nav button.active { color: var(--accent); }
 .lib-detail p { margin: 8px 2px 2px; }
 .anim { position: relative; aspect-ratio: 3 / 2; border-radius: 10px; overflow: hidden; background: var(--accent-soft); cursor: pointer; display: grid; place-items: center; font-size: 1.8rem; }
 .anim img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.anim img + img { animation: swap 2.4s ease-in-out infinite; }
-@keyframes swap { 0%, 35% { opacity: 0; } 50%, 85% { opacity: 1; } 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .anim img + img { animation: none; opacity: 0; } }
+.anim.big { cursor: default; }
+/* Hard cut between start/end photo (a crossfade blends two people into one blurry image) */
+.anim.big .f1, .anim.big .s1 { animation: frame 2.4s steps(1, end) infinite; }
+.anim.big .s0 { animation: frame0 2.4s steps(1, end) infinite; }
+@keyframes frame { 0% { opacity: 0; } 50%, 100% { opacity: 1; } }
+@keyframes frame0 { 0% { opacity: 1; } 50%, 100% { opacity: 0; } }
+.anim .step { position: absolute; left: 8px; top: 8px; background: rgb(0 0 0 / .65); color: #fff; font-size: .8rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+@media (prefers-reduced-motion: reduce) { .anim.big .f1, .anim.big .s1 { animation: none; opacity: 0; } .anim.big .s0 { animation: none; } }
 .lib-bar { position: sticky; bottom: calc(70px + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; background: var(--grad); color: #fff; padding: 8px 10px; border-radius: 14px; box-shadow: 0 6px 20px rgb(0 0 0 / .2); }
 .lib-bar[hidden] { display: none; }
 .lib-bar button { background: rgb(255 255 255 / .2); border-color: transparent; color: #fff; margin: 0; }
