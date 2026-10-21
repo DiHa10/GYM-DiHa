@@ -144,13 +144,12 @@ function render() {
   const lastW = [...body].reverse().find(b => b.weight)?.weight;
   $('#bmi').innerHTML = bmiCard(bmiInfo(lastW, settings.height), lastW);
   $('#chart').innerHTML = lineChart(body.filter(b => b.weight).map(b => ({ date: b.date, v: b.weight })), 'kg');
-  $('#chart-waist').innerHTML = lineChart(body.filter(b => b.waist).map(b => ({ date: b.date, v: b.waist })), 'cm');
   const sel = $('#ex-select'), cur = sel.value, names = [...new Set(sessions.flatMap(s => s.exercises.map(e => e.name.trim())))];
   sel.innerHTML = names.map(n => `<option>${esc(n)}</option>`).join('') || '<option value="">Chưa có bài</option>';
   if (names.includes(cur)) sel.value = cur;
   drawExChart();
-  $('#body-list').innerHTML = body.reverse().map(b => `<div class="item"><div class="row">
-    <span><b>${fmtDate(b.date)}</b> — ${b.weight ? b.weight + ' kg' : ''}${b.weight && b.waist ? ' · ' : ''}${b.waist ? 'bụng ' + b.waist + ' cm' : ''}</span>
+  $('#body-list').innerHTML = body.filter(b => b.weight).reverse().map(b => `<div class="item"><div class="row">
+    <span><b>${fmtDate(b.date)}</b> — ${b.weight} kg</span>
     <button class="small" data-del-body="${b.id}">Xóa</button></div></div>`).join('');
 
   // Badges
@@ -345,11 +344,11 @@ $('#import').onchange = async e => {
 // ---------- Body ----------
 $('#b-height').onchange = e => { const h = +e.target.value; data.settings.height = h >= 100 && h <= 250 ? h : 0; save(); };
 $('#save-body').onclick = () => {
-  const date = $('#b-date').value, weight = +$('#b-weight').value || 0, waist = +$('#b-waist').value || 0;
-  if (!date || (!weight && !waist)) return toast('Nhập ngày và ít nhất 1 số đo');
-  data.body.push({ id: uid(), date, weight, waist });
-  $('#b-weight').value = $('#b-waist').value = '';
-  save(); toast('⚖️ Đã lưu số đo');
+  const date = $('#b-date').value, weight = +$('#b-weight').value || 0;
+  if (!date || !weight) return toast('Nhập ngày và cân nặng nhé');
+  data.body.push({ id: uid(), date, weight });
+  $('#b-weight').value = '';
+  save(); toast('⚖️ Đã lưu cân nặng');
 };
 
 // ---------- Edit / delete (delegated) ----------
