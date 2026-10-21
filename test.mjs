@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { LIBRARY, groupFor } from './library.js';
 import { weekStart, ymd, weekDone, mascotState, needsReminder, streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs, defaultData } from './logic.js';
 
 const S = (date, exercises = []) => ({ id: date, date, exercises });
@@ -55,5 +56,12 @@ const ics = buildIcs(data.settings, wed);
 assert.match(ics, /DTSTART:20261021T180000/);
 assert.match(ics, /RRULE:FREQ=WEEKLY;BYDAY=MO/);
 assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 3);
+
+assert.equal(groupFor('Ngực + tay sau'), 'Ngực');
+assert.equal(groupFor('Tay sau'), 'Tay sau');
+assert.equal(groupFor('Lưng xô'), 'Lưng');
+assert.equal(groupFor(''), null);
+const allNames = LIBRARY.flatMap(g => g.items.map(i => i[0].toLowerCase()));
+assert.equal(new Set(allNames).size, allNames.length, 'library names must be unique');
 
 console.log('OK all tests passed');

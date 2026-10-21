@@ -79,13 +79,9 @@ label.inline input { width: 80px; margin: 0; }
 .item .row { justify-content: space-between; flex-wrap: nowrap; }
 .item p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
 
-.plan-day { display: grid; grid-template-columns: 22px 2.5em 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+.plan-day { display: grid; grid-template-columns: 22px 2.5em 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
 .plan-day input[type=text] { margin: 0; }
 
-.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-.badge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; text-align: center; }
-.badge .i { font-size: 2.2rem; } .badge b { display: block; } .badge span { color: var(--muted); font-size: .8rem; }
-.badge.locked { opacity: .4; filter: grayscale(1); }
 
 #chart svg { width: 100%; height: auto; }
 
@@ -102,3 +98,27 @@ nav button.active { color: var(--accent); }
 .eyes { animation: blink 4s infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
 @media (prefers-reduced-motion: reduce) { .eyes, .confetti { animation: none !important; } }
+
+/* Exercise library */
+#lib-search { margin-bottom: 4px; }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; scrollbar-width: none; }
+.chip { white-space: nowrap; border-radius: 99px; margin: 0; padding: 6px 12px; font-size: .9rem; }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.lib-item { display: grid; grid-template-columns: 76px 1fr auto; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px; margin-bottom: 8px; }
+.lib-item.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.lib-text { cursor: pointer; min-width: 0; }
+.lib-text small { display: block; color: var(--muted); }
+.lib-text .pr { display: inline-block; margin-top: 2px; font-size: .75rem; font-weight: 600; color: var(--accent); }
+.lib-item input[type=checkbox] { width: 26px; height: 26px; }
+.lib-detail { grid-column: 1 / -1; }
+.lib-detail p { margin: 8px 2px 2px; }
+.anim { position: relative; aspect-ratio: 3 / 2; border-radius: 10px; overflow: hidden; background: var(--accent-soft); cursor: pointer; display: grid; place-items: center; font-size: 1.8rem; }
+.anim img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.anim img + img { animation: swap 2.4s ease-in-out infinite; }
+@keyframes swap { 0%, 35% { opacity: 0; } 50%, 85% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .anim img + img { animation: none; opacity: 0; } }
+.lib-bar { position: sticky; bottom: calc(70px + env(safe-area-inset-bottom)); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; background: var(--grad); color: #fff; padding: 8px 10px; border-radius: 14px; box-shadow: 0 6px 20px rgb(0 0 0 / .2); }
+.lib-bar[hidden] { display: none; }
+.lib-bar button { background: rgb(255 255 255 / .2); border-color: transparent; color: #fff; margin: 0; }
+.lib-bar select { max-width: 110px; padding: 4px 6px; }
+.credit { text-align: center; font-size: .7rem; }
