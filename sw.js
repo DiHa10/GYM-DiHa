@@ -1,5 +1,5 @@
-const CACHE = 'gymman-v10';
-const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'mascot.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
+const CACHE = 'gymman-v11';
+const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'mascot.js', 'library.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' }))))); self.skipWaiting(); });
 self.addEventListener('activate', e => e.waitUntil(

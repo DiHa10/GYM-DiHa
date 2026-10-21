@@ -47,7 +47,7 @@
         <label>Ngày <input type="date" id="log-date"></label>
         <div id="exercises"></div>
         <datalist id="ex-names"></datalist>
-        <button id="add-ex">+ Thêm bài tập</button>
+        <div class="row"><button id="add-ex">+ Thêm bài tập</button><button id="lib-open" type="button">📚 Chọn từ thư viện</button></div>
         <button id="save-log" class="primary">Lưu buổi tập</button>
         <p class="hint">Không có thời gian ghi chi tiết? Cứ bấm Lưu để đánh dấu đã tập.</p>
       </div>
@@ -102,9 +102,18 @@
       <div id="body-list"></div>
     </section>
 
-    <section id="badges" class="tab">
-      <h2>Thành tích</h2>
-      <div id="badge-grid" class="badges"></div>
+    <section id="library" class="tab">
+      <h2>📚 Thư viện bài tập</h2>
+      <input id="lib-search" type="search" placeholder="Tìm bài (VD: squat, đẩy ngực)…" aria-label="Tìm bài tập">
+      <div id="lib-groups" class="chips"></div>
+      <p class="hint">Chạm vào bài để xem chuyển động và cách tập. Tick ô bên phải để chọn nhiều bài.</p>
+      <div id="lib-list"></div>
+      <div id="lib-bar" class="lib-bar" hidden>
+        <b id="lib-count"></b>
+        <button id="lib-to-log" class="small" type="button">+ Buổi tập</button>
+        <span class="row"><select id="lib-day" aria-label="Ngày của bài mẫu"></select><button id="lib-to-tpl" class="small" type="button">+ Bài mẫu</button></span>
+      </div>
+      <p class="hint credit">Ảnh minh họa: free-exercise-db (public domain).</p>
     </section>
   </main>
 
@@ -113,7 +122,7 @@
     <button data-go="log">🏋️<span>Tập</span></button>
     <button data-go="plan">📅<span>Lịch</span></button>
     <button data-go="body">⚖️<span>Cơ thể</span></button>
-    <button data-go="badges">🏆<span>Thành tích</span></button>
+    <button data-go="library">📚<span>Thư viện</span></button>
   </nav>
   <div id="rest" class="rest" hidden>
     <span>⏱ Nghỉ <b id="rest-left">90</b>s</span>

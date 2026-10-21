@@ -1,8 +1,9 @@
 import {
   DAY_NAMES, WEEK_ORDER, defaultData, ymd, weekStart, weekDone, mascotState, needsReminder,
-  streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, badges, buildIcs,
+  streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
 } from './logic.js';
 import { mascotSvg, ACTIONS } from './mascot.js';
+import { LIBRARY, NO_PHOTO, photoSlug, groupFor } from './library.js';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -122,7 +123,8 @@ function render() {
   $('#backup-banner').hidden = !(sessions.length >= 5 && Date.now() - (data.lastBackup || 0) > 14 * 864e5);
 
   // History
-  $('#ex-names').innerHTML = [...new Set(sessions.flatMap(s => s.exercises.map(e => e.name)))].map(n => `<option value="${esc(n)}">`).join('');
+  const libNames = LIBRARY.flatMap(g => g.items.map(i => i[0]));
+  $('#ex-names').innerHTML = [...new Set([...sessions.flatMap(s => s.exercises.map(e => e.name)), ...libNames])].map(n => `<option value="${esc(n)}">`).join('');
   $('#history').innerHTML = [...sessions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60).map(s => `
     <div class="item"><div class="row"><b>${fmtDate(s.date)}</b><span><button class="small" data-edit-session="${s.id}">Sửa</button> <button class="small" data-del-session="${s.id}">Xóa</button></span></div>
     ${s.exercises.map(e => `<p><b>${esc(e.name)}</b>: ${e.sets.map(x => `${x.reps}×${x.kg || 0}kg`).join(', ')}</p>`).join('') || '<p>Đã tập (không ghi chi tiết)</p>'}</div>`).join('')
@@ -133,7 +135,7 @@ function render() {
   $('#time').value = settings.time;
   $('#plan-days').innerHTML = WEEK_ORDER.map(dow => `<div class="plan-day">
     <input type="checkbox" data-day="${dow}" ${settings.days.includes(dow) ? 'checked' : ''} aria-label="Tập ${DAY_NAMES[dow]}">
-    <b>${DAY_NAMES[dow]}</b><input type="text" data-muscle="${dow}" placeholder="Nhóm cơ (VD: Ngực)" value="${esc(settings.plan[dow] || '')}">
+    <b>${DAY_NAMES[dow]}</b><input type="text" data-muscle="${dow}" placeholder="Nhóm cơ (VD: Ngực)" value="${esc(settings.plan[dow] || '')}"><button class="small" type="button" data-lib-day="${dow}" aria-label="Chọn bài mẫu ${DAY_NAMES[dow]} từ thư viện">📚</button>
     <textarea data-tpl="${dow}" rows="2" placeholder="Bài tập, mỗi dòng 1 bài" aria-label="Bài tập mẫu ${DAY_NAMES[dow]}">${esc((settings.templates[dow] || []).join('\n'))}</textarea></div>`).join('');
   $('#notif').textContent = 'Notification' in window && Notification.permission === 'granted' ? '🔔 Thông báo đã bật' : '🔔 Bật thông báo trong app';
 
@@ -152,9 +154,7 @@ function render() {
     <span><b>${fmtDate(b.date)}</b> — ${b.weight} kg</span>
     <button class="small" data-del-body="${b.id}">Xóa</button></div></div>`).join('');
 
-  // Badges
-  $('#badge-grid').innerHTML = badges(data, now).map(b => `<div class="badge ${b.got ? '' : 'locked'}">
-    <div class="i">${b.icon}</div><b>${b.name}</b><span>${b.desc}</span></div>`).join('');
+  drawLibrary();
 }
 
 const BMI_CAT = { under: ['Thiếu cân', 'var(--warn)'], normal: ['Bình thường', 'var(--ok)'], over: ['Thừa cân', 'var(--warn)'], obese: ['Béo phì', 'var(--bad)'] };
@@ -355,6 +355,7 @@ $('#save-body').onclick = () => {
 document.addEventListener('click', e => {
   const s = e.target.dataset.delSession, b = e.target.dataset.delBody;
   if (e.target.dataset.editSession) editSession(e.target.dataset.editSession);
+  if (e.target.dataset.libDay) { const d = +e.target.dataset.libDay; openLibrary(groupFor(data.settings.plan[d]), d); }
   if (s && confirm('Xóa buổi tập này?')) { data.sessions = data.sessions.filter(x => x.id !== s); save(); }
   if (b && confirm('Xóa số đo này?')) { data.body = data.body.filter(x => x.id !== b); save(); }
 });
@@ -373,6 +374,77 @@ $('#theme-btn').onclick = () => {
   theme = applyTheme({ auto: 'light', light: 'dark', dark: 'auto' }[theme]);
   toast(`${THEMES[theme][0]} Chế độ: ${THEMES[theme][1]}`);
 };
+
+// ---------- Exercise library ----------
+let libGroup = LIBRARY[0].group, libOpen = null, libDay = null;
+const libSel = new Set();
+const photo = (name, cls = '') => NO_PHOTO.has(name)
+  ? `<div class="anim ${cls}" aria-hidden="true">🤸</div>`
+  : `<div class="anim ${cls}"><img src="ex/${photoSlug(name)}-0.jpg" alt="${esc(name)} – tư thế đầu" loading="lazy"><img src="ex/${photoSlug(name)}-1.jpg" alt="" loading="lazy"></div>`;
+
+function drawLibrary() {
+  const q = $('#lib-search').value.trim().toLowerCase(), best = personalRecords(data.sessions).best;
+  $('#lib-groups').innerHTML = LIBRARY.map(g => `<button class="chip ${!q && g.group === libGroup ? 'on' : ''}" type="button" data-group="${g.group}">${g.icon} ${g.group}</button>`).join('');
+  const items = q
+    ? LIBRARY.flatMap(g => g.items.filter(i => `${i[0]} ${i[1]} ${g.group}`.toLowerCase().includes(q)))
+    : LIBRARY.find(g => g.group === libGroup).items;
+  $('#lib-list').innerHTML = items.map(([name, vi, cue]) => {
+    const pr = best[name.toLowerCase()];
+    return `<div class="lib-item ${libSel.has(name) ? 'sel' : ''}" data-name="${esc(name)}">
+      ${photo(name)}
+      <div class="lib-text"><b>${esc(name)}</b><small>${vi}</small>${pr ? `<span class="pr">🏆 Kỷ lục ${pr} kg</span>` : ''}</div>
+      <input type="checkbox" data-ex="${esc(name)}" ${libSel.has(name) ? 'checked' : ''} aria-label="Chọn ${esc(name)}">
+      ${libOpen === name ? `<div class="lib-detail">${photo(name)}<p>📋 ${cue}</p></div>` : ''}
+    </div>`;
+  }).join('') || '<p class="hint">Không tìm thấy bài nào.</p>';
+  $('#lib-day').innerHTML = WEEK_ORDER.map(d => `<option value="${d}" ${d === libDay ? 'selected' : ''}>${DAY_NAMES[d]}${data.settings.plan[d] ? ' · ' + esc(data.settings.plan[d]) : ''}</option>`).join('');
+  $('#lib-bar').hidden = !libSel.size;
+  $('#lib-count').textContent = `Đã chọn ${libSel.size}`;
+}
+
+function openLibrary(group, day) {
+  if (group) libGroup = group;
+  libDay = day;
+  $('#lib-search').value = '';
+  drawLibrary();
+  go('library');
+  $('.chip.on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+
+$('#lib-search').oninput = drawLibrary;
+$('#lib-groups').onclick = e => {
+  const g = e.target.closest('[data-group]')?.dataset.group;
+  if (g) { libGroup = g; $('#lib-search').value = ''; drawLibrary(); }
+};
+$('#lib-list').onclick = e => {
+  const item = e.target.closest('.lib-item');
+  if (!item || e.target.matches('input')) return;
+  libOpen = libOpen === item.dataset.name ? null : item.dataset.name; // tap to show/hide how-to
+  drawLibrary();
+};
+$('#lib-list').onchange = e => {
+  const n = e.target.dataset.ex;
+  if (n) { e.target.checked ? libSel.add(n) : libSel.delete(n); drawLibrary(); }
+};
+$('#lib-day').onchange = e => { libDay = +e.target.value; };
+$('#lib-to-log').onclick = () => {
+  // drop untouched blank rows so the picked exercises are not mixed with an empty one
+  document.querySelectorAll('#exercises .ex').forEach(ex => {
+    if (!ex.querySelector('.name').value.trim() && ![...ex.querySelectorAll('input')].some(i => i.value)) ex.remove();
+  });
+  libSel.forEach(n => addExercise(n));
+  toast(`➕ Đã thêm ${libSel.size} bài vào buổi tập`);
+  libSel.clear(); dirty = true;
+  drawLibrary(); go('log');
+};
+$('#lib-to-tpl').onclick = () => {
+  const d = +$('#lib-day').value, t = data.settings.templates;
+  t[d] = [...new Set([...(t[d] || []), ...libSel])];
+  toast(`📅 Đã thêm ${libSel.size} bài vào bài mẫu ${DAY_NAMES[d]}`);
+  libSel.clear();
+  save();
+};
+$('#lib-open').onclick = () => { const d = dayOf($('#log-date').value); openLibrary(groupFor(data.settings.plan[d]), d); };
 
 // ---------- Navigation ----------
 // Android Back: any tab -> Home -> exit. History holds at most [home, current tab].
@@ -465,7 +537,7 @@ $('#b-date').value = ymd(new Date());
 resetLog();
 const startTab = new URLSearchParams(location.search).get('tab');
 history.replaceState({ tab: 'home' }, '', location.pathname); // also drops ?tab= from home-screen shortcuts
-if (['log', 'plan', 'body', 'badges'].includes(startTab)) go(startTab);
+if (['log', 'plan', 'body', 'library'].includes(startTab)) go(startTab);
 checkReminder();
 setInterval(checkReminder, 60_000);
 document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && checkReminder());

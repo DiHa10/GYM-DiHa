@@ -131,21 +131,6 @@ export function bodyCheer(body, heightCm) {
     : `Còn ${info.diff} kg nữa về mức chuẩn. Kiên trì tập và ăn uống hợp lý, bạn làm được! 💪`;
 }
 
-export function badges(data, now) {
-  const n = data.sessions.length, { best } = streaks(data, now), pr = personalRecords(data.sessions).count;
-  return [
-    ['🥇', 'Khởi đầu', 'Buổi tập đầu tiên', n >= 1],
-    ['🔟', 'Chăm chỉ', '10 buổi tập', n >= 10],
-    ['🏅', 'Bền bỉ', '50 buổi tập', n >= 50],
-    ['💯', 'Huyền thoại', '100 buổi tập', n >= 100],
-    ['🔥', 'Lửa cháy', '4 tuần liền đủ buổi', best >= 4],
-    ['🏆', 'Kỷ luật thép', '12 tuần liền đủ buổi', best >= 12],
-    ['📈', 'Phá kỷ lục', 'Lần đầu tăng mức tạ', pr >= 1],
-    ['🦾', 'Cỗ máy', '10 lần phá kỷ lục', pr >= 10],
-    ['⚖️', 'Theo dõi', 'Ghi cân nặng 4 lần', data.body.filter(b => b.weight).length >= 4],
-  ].map(([icon, name, desc, got]) => ({ icon, name, desc, got }));
-}
-
 // Recurring calendar events with alarm: phone calendar reminds on time, no server needed
 export function buildIcs(settings, now) {
   const ICS_DAY = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
