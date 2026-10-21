@@ -378,15 +378,9 @@ $('#theme-btn').onclick = () => {
 // ---------- Exercise library ----------
 let libGroup = LIBRARY[0].group, libOpen = null, libDay = null;
 const libSel = new Set();
-// Thumbnail = start photo only; big view alternates start/end photo with a step label
-const photo = (name, big = false) => {
-  if (NO_PHOTO.has(name)) return `<div class="anim${big ? ' big' : ''}" aria-hidden="true">🤸</div>`;
-  const src = i => `ex/${photoSlug(name)}-${i}.jpg`;
-  return big
-    ? `<div class="anim big"><img src="${src(0)}" alt="${esc(name)}: tư thế bắt đầu"><img class="f1" src="${src(1)}" alt="${esc(name)}: tư thế kết thúc">
-        <span class="step s0">1 · Bắt đầu</span><span class="step s1">2 · Kết thúc</span></div>`
-    : `<div class="anim"><img src="${src(0)}" alt="" loading="lazy"></div>`;
-};
+const photo = (name, cls = '') => NO_PHOTO.has(name)
+  ? `<div class="anim ${cls}" aria-hidden="true">🤸</div>`
+  : `<div class="anim ${cls}"><img src="ex/${photoSlug(name)}-0.jpg" alt="${esc(name)} – tư thế đầu" loading="lazy"><img src="ex/${photoSlug(name)}-1.jpg" alt="" loading="lazy"></div>`;
 
 function drawLibrary() {
   const q = $('#lib-search').value.trim().toLowerCase(), best = personalRecords(data.sessions).best;
@@ -400,7 +394,7 @@ function drawLibrary() {
       ${photo(name)}
       <div class="lib-text"><b>${esc(name)}</b><small>${vi}</small>${pr ? `<span class="pr">🏆 Kỷ lục ${pr} kg</span>` : ''}</div>
       <input type="checkbox" data-ex="${esc(name)}" ${libSel.has(name) ? 'checked' : ''} aria-label="Chọn ${esc(name)}">
-      ${libOpen === name ? `<div class="lib-detail">${photo(name, true)}<p>📋 ${cue}</p></div>` : ''}
+      ${libOpen === name ? `<div class="lib-detail">${photo(name)}<p>📋 ${cue}</p></div>` : ''}
     </div>`;
   }).join('') || '<p class="hint">Không tìm thấy bài nào.</p>';
   $('#lib-day').innerHTML = WEEK_ORDER.map(d => `<option value="${d}" ${d === libDay ? 'selected' : ''}>${DAY_NAMES[d]}${data.settings.plan[d] ? ' · ' + esc(data.settings.plan[d]) : ''}</option>`).join('');
