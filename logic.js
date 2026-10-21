@@ -5,7 +5,7 @@ export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Monday first
 export const defaultData = () => ({
   settings: { goal: 3, days: [1, 3, 5], time: '18:00', plan: {}, templates: {}, rest: 90, height: 0 }, // templates: {dow: ['Bench press', ...]}
   sessions: [], // {id, date:'YYYY-MM-DD', exercises:[{name, sets:[{reps, kg}]}]}
-  body: [],     // {id, date, weight, waist}
+  body: [],     // {id, date, weight} (old saves may also have waist)
 });
 
 export function ymd(d) {
@@ -142,7 +142,7 @@ export function badges(data, now) {
     ['🏆', 'Kỷ luật thép', '12 tuần liền đủ buổi', best >= 12],
     ['📈', 'Phá kỷ lục', 'Lần đầu tăng mức tạ', pr >= 1],
     ['🦾', 'Cỗ máy', '10 lần phá kỷ lục', pr >= 10],
-    ['⚖️', 'Theo dõi', 'Ghi số đo 4 lần', data.body.length >= 4],
+    ['⚖️', 'Theo dõi', 'Ghi cân nặng 4 lần', data.body.filter(b => b.weight).length >= 4],
   ].map(([icon, name, desc, got]) => ({ icon, name, desc, got }));
 }
 
