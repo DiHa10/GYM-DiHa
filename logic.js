@@ -161,6 +161,20 @@ export function periodStats(sessions, [from, to]) {
   };
 }
 
+// Last `weeks` weeks (Mon-Sun columns, oldest first) with what was trained each day
+export function heatmap(sessions, now, weeks = 12) {
+  const kinds = {};
+  for (const s of sessions) {
+    const k = s.kind === 'badminton' ? 'badminton' : 'gym';
+    kinds[s.date] = kinds[s.date] && kinds[s.date] !== k ? 'both' : k;
+  }
+  const today = ymd(now), first = addDays(weekStart(now), -7 * (weeks - 1));
+  return Array.from({ length: weeks }, (_, w) => Array.from({ length: 7 }, (_, d) => {
+    const date = ymd(addDays(first, w * 7 + d));
+    return { date, kind: date > today ? 'future' : kinds[date] || null };
+  }));
+}
+
 // Recurring calendar events with alarm: phone calendar reminds on time, no server needed
 export function buildIcs(settings, now) {
   const ICS_DAY = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];

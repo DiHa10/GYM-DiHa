@@ -1,6 +1,6 @@
 import {
   DAY_NAMES, WEEK_ORDER, defaultData, ymd, weekStart, weekDone, mascotState, needsReminder,
-  streaks, personalRecords, periodRange, periodStats, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
+  streaks, personalRecords, periodRange, periodStats, heatmap, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
 } from './logic.js';
 import { mascotSvg, actionsFor } from './mascot.js';
 import { icon, hydrateIcons } from './icons.js';
@@ -110,6 +110,14 @@ function drawStats() {
   $('#stats-diff').textContent = diff > 0 ? `▲ ${diff} buổi so với ${label}` : diff < 0 ? `▼ ${-diff} buổi so với ${label}` : `Bằng ${label}`;
   $('#stats-diff').className = 'hint ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : '');
   document.querySelectorAll('[data-stats]').forEach(b => b.classList.toggle('on', b.dataset.stats === statsKind));
+  const hm = heatmap(data.sessions, now), today = ymd(now), KIND = { gym: 'Gym', badminton: 'Cầu lông', both: 'Gym + cầu lông' };
+  $('#heatmap').innerHTML = hm.map(w => `<div class="hm-col">${w.map(d =>
+    `<i class="hm ${d.kind || ''}${d.date === today ? ' today' : ''}" title="${fmtDate(d.date)}${KIND[d.kind] ? ': ' + KIND[d.kind] : ''}"></i>`).join('')}</div>`).join('');
+  // month label above the first week column of each month
+  $('#heat-months').innerHTML = hm.map((w, i) => {
+    const m = w[0].date.slice(5, 7);
+    return `<span>${i === 0 || m !== hm[i - 1][0].date.slice(5, 7) ? 'T' + +m : ''}</span>`;
+  }).join('');
 }
 document.querySelectorAll('[data-stats]').forEach(b => b.onclick = () => { statsKind = b.dataset.stats; drawStats(); });
 
@@ -245,12 +253,20 @@ $('#ex-select').onchange = drawExChart;
 function addSetRow(box, reps = '', kg = '') {
   const row = document.createElement('div');
   row.className = 'set';
-  row.innerHTML = `<span class="hint">#${box.children.length + 1}</span>
-    <input type="number" class="reps" placeholder="Reps" inputmode="numeric" min="0" value="${reps}" aria-label="Số reps">
-    <input type="number" class="kg" placeholder="Kg" inputmode="decimal" step="0.5" min="0" value="${kg}" aria-label="Mức tạ kg">
+  const stepper = (cls, ph, mode, val, label) => `<div class="step">
+      <button type="button" class="dec" aria-label="Giảm ${label}">${icon('minus')}</button>
+      <input type="number" class="${cls}" placeholder="${ph}" inputmode="${mode}" min="0" step="any" value="${val}" aria-label="${label}">
+      <button type="button" class="inc" aria-label="Tăng ${label}">${icon('plus')}</button></div>`;
+  row.innerHTML = `<span class="hint">${box.children.length + 1}</span>
+    ${stepper('reps', 'Reps', 'numeric', reps, 'số reps')}${stepper('kg', 'Kg', 'decimal', kg, 'mức tạ kg')}
     <button class="small check" type="button" aria-label="Xong set, bắt đầu nghỉ">${icon('check')}</button>
     <button class="small del" type="button" aria-label="Xóa set">${icon('x')}</button>`;
   row.querySelector('.del').onclick = () => row.remove();
+  row.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+    const input = b.parentElement.querySelector('input'), step = input.classList.contains('kg') ? 2.5 : 1;
+    input.value = Math.max(0, +((+input.value || 0) + (b.classList.contains('inc') ? step : -step)).toFixed(2));
+    input.dispatchEvent(new Event('input', { bubbles: true })); // keeps the form "dirty" tracking working
+  });
   row.querySelector('.check').onclick = () => { if (row.classList.toggle('done')) { navigator.vibrate?.(30); startRest(); } };
   box.append(row);
 }
@@ -259,8 +275,8 @@ function addSetRow(box, reps = '', kg = '') {
 function addExercise(name = '', sets = null) {
   const ex = document.createElement('div');
   ex.className = 'ex';
-  ex.innerHTML = `<div class="row between"><b>Bài tập</b><button class="small" type="button">Bỏ bài</button></div>
-    <input class="name" list="ex-names" placeholder="Tên bài (VD: Squat)" aria-label="Tên bài tập">
+  ex.innerHTML = `<div class="ex-head"><button class="small icon-btn" type="button" aria-label="Bỏ bài này">${icon('x')}</button>
+    <input class="name" list="ex-names" placeholder="Tên bài (VD: Squat)" aria-label="Tên bài tập"></div>
     <div class="prev"></div><div class="sets"></div><button class="small add-set" type="button">+ Set</button>`;
   const box = ex.querySelector('.sets'), nameInput = ex.querySelector('.name');
   ex.querySelector('button').onclick = () => ex.remove();
@@ -537,9 +553,17 @@ $('#lib-open').onclick = () => { const d = dayOf($('#log-date').value); openLibr
 // ---------- Navigation ----------
 // Android Back: any tab -> Home -> exit. History holds at most [home, current tab].
 let currentTab = 'home';
+const TAB_ORDER = ['home', 'log', 'plan', 'body', 'library'];
 function show(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === tab));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.go === tab));
+  if (tab !== currentTab) { // slide in from the side of the tab we came from
+    const el = $('#' + tab);
+    el.classList.remove('enter-left', 'enter-right');
+    void el.offsetWidth; // restart the animation
+    el.classList.add(TAB_ORDER.indexOf(tab) > TAB_ORDER.indexOf(currentTab) ? 'enter-right' : 'enter-left');
+  }
+  $('#fab').hidden = tab !== 'home';
   scrollTo(0, 0);
   currentTab = tab;
   updateWakeLock();

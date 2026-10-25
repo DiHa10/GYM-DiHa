@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { LIBRARY, groupFor, groupItems, NO_PHOTO, photoSlug, RATINGS } from './library.js';
 import { existsSync } from 'node:fs';
-import { weekStart, ymd, weekDone, mascotState, needsReminder, streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs, defaultData, periodRange, periodStats } from './logic.js';
+import { weekStart, ymd, weekDone, mascotState, needsReminder, streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs, defaultData, periodRange, periodStats, heatmap } from './logic.js';
 
 const S = (date, exercises = []) => ({ id: date, date, exercises });
 const ex = (name, ...kgs) => ({ name, sets: kgs.map(kg => ({ reps: 10, kg })) });
@@ -72,6 +72,16 @@ assert.deepEqual(periodRange('month', wed), ['2026-10-01', '2026-11-01']);
 assert.deepEqual(periodRange('month', new Date(2026, 0, 5), 1), ['2025-12-01', '2026-01-01']);
 const ps = [S('2026-10-18', [ex('Squat', 100)]), S('2026-10-19', [ex('Squat', 50, 60)]), S('2026-10-21', [ex('Bench', 40)]),
   { id: 'b', date: '2026-10-25', exercises: [], kind: 'badminton', minutes: 90, games: 5 }, S('2026-10-26', [ex('Squat', 80)])];
+const hm = heatmap([...ps, S('2026-10-19', [])], wed);
+assert.equal(hm.length, 12);
+assert.ok(hm.every(w => w.length === 7));
+assert.equal(hm[11][0].date, '2026-10-19'); // last column = this week, Monday first
+assert.equal(hm[0][0].date, '2026-08-03');
+assert.equal(hm[11][0].kind, 'gym');
+assert.equal(hm[11][2].kind, 'gym');      // Wed 21
+assert.equal(hm[11][3].kind, 'future');   // Thu 22 is after "today"
+assert.equal(hm[11][1].kind, null);
+assert.equal(heatmap([S('2026-10-20'), { id: 'x', date: '2026-10-20', exercises: [], kind: 'badminton' }], wed)[11][1].kind, 'both');
 assert.deepEqual(periodStats(ps, periodRange('week', wed)), { gym: 2, badminton: 1, minutes: 90, games: 5, volume: 1500, days: 3 });
 
 assert.equal(groupFor('Ngực + tay sau'), 'Ngực');

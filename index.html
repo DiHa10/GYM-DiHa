@@ -10,6 +10,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="fonts/fonts.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,33 +19,35 @@
     <section id="home" class="tab active">
       <div id="banner" class="banner" hidden></div>
       <div id="backup-banner" class="banner soft" hidden role="button" tabindex="0">💾 Đã lâu chưa sao lưu dữ liệu. Chạm để mở phần Sao lưu.</div>
-      <div class="card mascot-card" role="button" tabindex="0" aria-label="Chạm để man đổi động tác">
-        <div id="mascot"></div>
-        <p id="mascot-msg" class="msg"></p>
-        <small id="mascot-action"></small>
+      <div class="card hero">
+        <div class="mascot-card" role="button" tabindex="0" aria-label="Chạm để man đổi động tác">
+          <div id="mascot"></div>
+          <p id="mascot-msg" class="msg"></p>
+          <small id="mascot-action"></small>
+        </div>
+        <div class="week-block">
+          <div class="row between"><h2>Tuần này</h2><b id="week-count"></b></div>
+          <div class="bar"><div id="week-bar"></div></div>
+          <div id="week-days" class="week"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row between"><h2>Thống kê</h2>
+          <div class="kind-switch stats-switch"><button type="button" data-stats="week">Tuần này</button><button type="button" data-stats="month">Tháng này</button></div>
+        </div>
+        <div class="pills"><span class="pill">🔥 <b id="streak"></b> tuần liền đủ buổi</span><span class="pill">💪 <b id="total"></b> buổi đã tập</span></div>
+        <div id="stats-grid" class="stats-grid"></div>
+        <p id="stats-diff" class="hint"></p>
+        <h3 class="sub">12 tuần gần nhất</h3>
+        <div id="heat-months" class="heat-months"></div>
+        <div id="heatmap" class="heatmap" role="img" aria-label="Lịch chuyên cần 12 tuần"></div>
+        <div class="heat-legend"><span><i class="hm"></i>Nghỉ</span><span><i class="hm gym"></i>Gym</span><span><i class="hm badminton"></i>Cầu lông</span><span><i class="hm both"></i>Cả hai</span></div>
       </div>
       <div class="card quote">
         <div class="row between"><small><i data-icon="quote"></i> Động lực hôm nay</small><button id="new-quote" class="small" aria-label="Đổi câu khác"><i data-icon="refresh"></i> Câu khác</button></div>
         <p id="quote"></p>
         <p id="quote-author" class="author"></p>
       </div>
-      <div class="card">
-        <div class="row between"><h2>Tuần này</h2><b id="week-count"></b></div>
-        <div class="bar"><div id="week-bar"></div></div>
-        <div id="week-days" class="week"></div>
-      </div>
-      <div class="stats">
-        <div class="card stat"><b id="streak"></b><span>tuần liền đủ buổi 🔥</span></div>
-        <div class="card stat"><b id="total"></b><span>buổi đã tập 💪</span></div>
-      </div>
-      <div class="card">
-        <div class="row between"><h2>Thống kê</h2>
-          <div class="kind-switch stats-switch"><button type="button" data-stats="week">Tuần này</button><button type="button" data-stats="month">Tháng này</button></div>
-        </div>
-        <div id="stats-grid" class="stats-grid"></div>
-        <p id="stats-diff" class="hint"></p>
-      </div>
-      <button class="primary big" data-go="log">+ Ghi buổi tập hôm nay</button>
     </section>
 
     <section id="log" class="tab">
@@ -65,9 +68,9 @@
         <div id="exercises"></div>
         <datalist id="ex-names"></datalist>
         <div class="row"><button id="add-ex">+ Thêm bài tập</button><button id="lib-open" type="button"><i data-icon="book"></i> Chọn từ thư viện</button></div>
-        <button id="save-log" class="primary">Lưu buổi tập</button>
         <p class="hint">Không có thời gian ghi chi tiết? Cứ bấm Lưu để đánh dấu đã tập.</p>
       </div>
+      <div class="save-bar"><button id="save-log" class="primary">Lưu buổi tập</button></div>
       <h2>Lịch sử</h2>
       <div id="history"></div>
     </section>
@@ -144,6 +147,7 @@
     </section>
   </main>
 
+  <button id="fab" class="fab" data-go="log" type="button" aria-label="Ghi buổi tập hôm nay"><i data-icon="plus"></i></button>
   <nav>
     <button data-go="home" class="active"><i data-icon="home"></i><span>Hôm nay</span></button>
     <button data-go="log"><i data-icon="dumbbell"></i><span>Tập</span></button>
