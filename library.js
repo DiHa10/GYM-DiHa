@@ -246,8 +246,9 @@ export const RATINGS = {
   'Medicine ball slam': [3, 4, 4], 'Medicine ball twist': [4, 4, 3], 'Single-leg deadlift': [4, 3, 4], 'Lateral lunge': [3, 4, 4],
 };
 
-// Exercises without a photo in free-exercise-db -> icon shown instead
-export const NO_PHOTO = new Map([['Burpee', '🤸'], ...['Six-corner footwork', 'Shadow badminton', 'Split step drill', 'Agility ladder', 'Multi-shuttle drill', 'Heavy racket swing', 'Lateral lunge'].map(n => [n, '🏸'])]);
+// Not in free-exercise-db: illustrated instead (ex/<slug>-0.svg / -1.svg, drawn by tools/gen-art.mjs)
+export const SVG_ART = new Set(['Burpee', 'Six-corner footwork', 'Shadow badminton', 'Split step drill', 'Agility ladder', 'Multi-shuttle drill', 'Heavy racket swing', 'Lateral lunge']);
+export const photoSrc = (name, frame) => `ex/${photoSlug(name)}-${frame}.${SVG_ART.has(name) ? 'svg' : 'jpg'}`;
 export const photoSlug = name => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 // Flat list of a group's exercises, each tagged with its sub-area
 export const groupItems = g => g.subs.flatMap(([sub, items]) => items.map(i => [...i, sub]));

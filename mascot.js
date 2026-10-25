@@ -5,6 +5,7 @@ const SKIN = '#f5c79a', INK = '#2b1d14', SHORTS = '#2f3b4c', HAIR = '#3a2a20', H
 const SH = { L: [56, 68], R: [84, 68] }, HIP = { L: [63, 106], R: [77, 106] };
 const BASE = { aL: [50, 88, 48, 106], aR: [90, 88, 92, 106], lL: [62, 128, 61, 148], lR: [78, 128, 79, 148], x: 0, y: 0 };
 const F = o => ({ ...BASE, ...o });
+export const pose = F; // used by tools/gen-art.mjs
 const SAD = { aL: [52, 90, 54, 108], aR: [88, 90, 86, 108], lL: [63, 129, 61, 148], lR: [77, 129, 79, 148], y: 3 };
 
 // Shown first on badminton days; rk = racket in the right hand
@@ -73,12 +74,19 @@ const FACE = {
 };
 const openEyes = dy => `<g class="eyes">${[62, 78].map(x => `<ellipse cx="${x}" cy="${42 + dy}" rx="3" ry="4" fill="${INK}"/><circle cx="${x + 1}" cy="${40.5 + dy}" r="1.1" fill="#fff"/>`).join('')}</g>`;
 
+// Racket with a padded cover, for "heavy racket" training
+const racketBag = `<path d="M0 0 L9 -11" stroke="#222" stroke-width="3.4" stroke-linecap="round"/><ellipse cx="14.5" cy="-18.5" rx="7" ry="9" transform="rotate(38 14.5 -18.5)" fill="#2f3b4c" stroke="#1b2430" stroke-width="2"/><path d="M9 -24 Q14 -13 20 -12" stroke="#c9a24a" stroke-width="1.2" fill="none"/>`;
 const racket = `<path d="M0 0 L9 -11" stroke="#222" stroke-width="3" stroke-linecap="round"/><ellipse cx="14" cy="-18" rx="5.5" ry="7.5" transform="rotate(38 14 -18)" fill="rgb(255 255 255 / .35)" stroke="#222" stroke-width="2"/>`;
 const dumbbell = `<rect x="-12" y="-2" width="24" height="4" rx="1" fill="#555"/><rect x="-15" y="-7" width="6" height="14" rx="1.5" fill="${INK}"/><rect x="9" y="-7" width="6" height="14" rx="1.5" fill="${INK}"/>`;
 const shoe = `<path d="M-7 3 Q-8 -4 0 -4 Q8 -4 11 3 Z" fill="#fff" stroke="#bbb" stroke-width="1"/><path d="M-3 -1 L5 -1" stroke="#6a7cb0" stroke-width="1.6"/>`;
 
 export function mascotSvg(state, idx = 0, still = false, badminton = false) {
-  const list = actionsFor(state, badminton), act = list[idx % list.length];
+  const list = actionsFor(state, badminton);
+  return actSvg(list[idx % list.length], state, still);
+}
+
+// One action -> SVG. act = {name, dur, frames, db?, rk?: true | 'bag'}; a frame may set rr = racket rotation (deg)
+export function actSvg(act, state, still = false) {
   const fr = still ? [act.frames[0], act.frames[0]] : [...act.frames, act.frames[0]];
   const dur = act.dur + 's', kt = fr.map((_, i) => (i / (fr.length - 1)).toFixed(3)).join(';');
   const ease = `calcMode="spline" keyTimes="${kt}" keySplines="${Array(fr.length - 1).fill('.45 0 .55 1').join(';')}" dur="${dur}" repeatCount="indefinite"`;
@@ -126,7 +134,7 @@ export function mascotSvg(state, idx = 0, still = false, badminton = false) {
       ${face.mouth}${face.extra || ''}
     </g>
     ${['L', 'R'].map(k => limb(p => armD(p, k), 9)).join('')}
-    ${act.rk ? `<g transform="translate(${fr[0].aR.slice(2).join(' ')})">${move(p => p.aR.slice(2).join(' '))}${racket}</g>` : ''}
+    ${act.rk ? `<g transform="translate(${fr[0].aR.slice(2).join(' ')})">${move(p => p.aR.slice(2).join(' '))}<g transform="rotate(${fr[0].rr || 0})">${act.rk === 'bag' ? racketBag : racket}</g></g>` : ''}
     ${act.db ? ['L', 'R'].map(k => `<g transform="translate(${fr[0]['a' + k].slice(2).join(' ')})">${move(p => p['a' + k].slice(2).join(' '))}${dumbbell}</g>`).join('') : ''}
   </g>
 </svg>`;

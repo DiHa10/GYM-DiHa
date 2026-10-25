@@ -1,4 +1,4 @@
-const CACHE = 'gymman-v19';
+const CACHE = 'gymman-v20';
 const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'mascot.js', 'library.js', 'icons.js', 'fonts/bvp-400-latin-ext.woff2', 'fonts/bvp-400-latin.woff2', 'fonts/bvp-400-vietnamese.woff2', 'fonts/bvp-600-latin-ext.woff2', 'fonts/bvp-600-latin.woff2', 'fonts/bvp-600-vietnamese.woff2', 'fonts/bvp-800-latin-ext.woff2', 'fonts/bvp-800-latin.woff2', 'fonts/bvp-800-vietnamese.woff2', 'fonts/fonts.css', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' }))))); self.skipWaiting(); });

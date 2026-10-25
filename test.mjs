@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { LIBRARY, groupFor, groupItems, NO_PHOTO, photoSlug, RATINGS } from './library.js';
+import { LIBRARY, groupFor, groupItems, photoSrc, SVG_ART, RATINGS } from './library.js';
 import { existsSync } from 'node:fs';
 import { weekStart, ymd, weekDone, mascotState, needsReminder, streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs, defaultData, periodRange, periodStats, heatmap } from './logic.js';
 
@@ -94,9 +94,13 @@ assert.equal(new Set(allNames).size, allNames.length, 'library names must be uni
 for (const g of LIBRARY) for (const i of groupItems(g)) {
   assert.equal(i.length, 4, i[0]); // name, vi, cue, sub
   assert.ok(RATINGS[i[0]]?.length === 3 && RATINGS[i[0]].every(r => r >= 1 && r <= 5), 'rating ' + i[0]);
-  if (!NO_PHOTO.has(i[0])) assert.ok(existsSync(`ex/${photoSlug(i[0])}-1.jpg`), 'missing photo ' + i[0]);
+  for (const f of [0, 1]) assert.ok(existsSync(photoSrc(i[0], f)), 'missing photo ' + photoSrc(i[0], f)); // every exercise has 2 frames
 }
 
 assert.equal(Object.keys(RATINGS).length, allNames.length, 'no ratings for unknown exercises');
+
+assert.equal(photoSrc('Burpee', 1), 'ex/burpee-1.svg');
+assert.equal(photoSrc('Squat', 0), 'ex/squat-0.jpg');
+assert.ok([...SVG_ART].every(n => allNames.includes(n.toLowerCase())), 'SVG_ART names must exist in library');
 
 console.log('OK all tests passed');

@@ -5,7 +5,7 @@ import {
 import { mascotSvg, actionsFor } from './mascot.js';
 import { icon, hydrateIcons } from './icons.js';
 hydrateIcons();
-import { LIBRARY, NO_PHOTO, photoSlug, groupFor, groupItems, RATINGS, RATING_LABELS } from './library.js';
+import { LIBRARY, photoSrc, groupFor, groupItems, RATINGS, RATING_LABELS } from './library.js';
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -461,9 +461,8 @@ $('#theme-btn').onclick = () => {
 // ---------- Exercise library ----------
 let libGroup = LIBRARY[0].group, libSub = '', libOpen = null, libDay = null; // libSub '' = all sub-areas
 const libSel = new Set();
-const photo = (name, cls = '') => NO_PHOTO.has(name)
-  ? `<div class="anim ${cls}" aria-hidden="true">${NO_PHOTO.get(name)}</div>`
-  : `<div class="anim ${cls}"><img src="ex/${photoSlug(name)}-0.jpg" alt="${esc(name)} – tư thế đầu" loading="lazy"><img src="ex/${photoSlug(name)}-1.jpg" alt="" loading="lazy"></div>`;
+const photo = (name, cls = '') =>
+  `<div class="anim ${cls}"><img src="${photoSrc(name, 0)}" alt="${esc(name)} – tư thế đầu" loading="lazy"><img src="${photoSrc(name, 1)}" alt="" loading="lazy"></div>`;
 
 const stars = n => `<span class="stars" aria-label="${n} trên 5 sao">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span>`;
 
