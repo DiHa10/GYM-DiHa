@@ -37,47 +37,59 @@ const MSG = {
   sad: ['Man nhớ phòng gym lắm rồi... 😢', 'Bỏ nhiều buổi quá rồi, quay lại đi bạn! 💔', 'Một buổi thôi cũng được, bắt đầu lại nhé! 🙏'],
 };
 
-// [câu nói, tác giả] — dịch sang tiếng Việt
+// [câu nói, tác giả]. Câu của người nổi tiếng là bản dịch; câu ghi "GYM DIHA" là lời app tự viết.
 const QUOTES = [
-  ['Tôi ghét từng phút tập luyện, nhưng tôi tự nhủ: Đừng bỏ cuộc. Chịu khổ bây giờ để sống cả đời như một nhà vô địch.', 'Muhammad Ali'],
-  ['Nhà vô địch không được tạo ra trong phòng tập. Họ được tạo ra từ khát khao, giấc mơ và tầm nhìn sâu bên trong.', 'Muhammad Ali'],
-  ['Đừng đếm ngày. Hãy làm cho mỗi ngày đáng đếm.', 'Muhammad Ali'],
-  ['Không gì là không thể.', 'Muhammad Ali'],
-  ['Ba bốn rep cuối cùng mới là thứ làm cơ bắp phát triển.', 'Arnold Schwarzenegger'],
-  ['Sự kháng cự bạn chiến đấu trong phòng gym và trong cuộc sống chỉ có thể rèn nên một tính cách mạnh mẽ.', 'Arnold Schwarzenegger'],
-  ['Ai cũng muốn thành vận động viên thể hình, nhưng chẳng ai muốn nâng tạ nặng cả.', 'Ronnie Coleman'],
-  ['Yeah buddy! Light weight, baby!', 'Ronnie Coleman'],
-  ['Thành công không phải lúc nào cũng là sự vĩ đại. Nó là sự bền bỉ.', 'Dwayne "The Rock" Johnson'],
-  ['Máu, mồ hôi và sự tôn trọng. Hai thứ đầu bạn cho đi, thứ cuối cùng bạn phải giành lấy.', 'Dwayne "The Rock" Johnson'],
   ['Bạn đang có nguy cơ sống một cuộc đời quá thoải mái, đến chết vẫn không biết mình có thể mạnh đến đâu.', 'David Goggins'],
   ['Ai sẽ khiêng những chiếc thuyền?', 'David Goggins'],
+  ['Tôi ghét từng phút tập luyện, nhưng tôi tự nhủ: Đừng bỏ cuộc. Chịu khổ bây giờ để sống cả đời như một nhà vô địch.', 'Muhammad Ali'],
+  ['Ai cũng muốn to, nhưng chẳng ai muốn nâng tạ nặng cả.', 'Ronnie Coleman'],
+  ['Ba bốn rep cuối cùng mới là thứ làm cơ bắp phát triển.', 'Arnold Schwarzenegger'],
   ['Kỷ luật là tự do.', 'Jocko Willink'],
-  ['Đừng cầu một cuộc sống dễ dàng. Hãy cầu sức mạnh để chịu đựng một cuộc sống khó khăn.', 'Lý Tiểu Long'],
-  ['Không có giới hạn, chỉ có những điểm chững lại. Đừng đứng yên ở đó, hãy vượt qua chúng.', 'Lý Tiểu Long'],
-  ['Mọi thứ tiêu cực, áp lực, thử thách, đều là cơ hội để tôi vươn lên.', 'Kobe Bryant'],
   ['Nghỉ ngơi ở vạch đích, không phải giữa đường.', 'Kobe Bryant'],
-  ['Tôi đã thất bại hết lần này đến lần khác. Và đó là lý do tôi thành công.', 'Michael Jordan'],
-  ['Tài năng mà không chăm chỉ thì chẳng là gì cả.', 'Cristiano Ronaldo'],
-  ['Thành công không phải tình cờ. Đó là làm việc chăm chỉ, kiên trì, học hỏi, hy sinh, và trên hết là yêu điều mình làm.', 'Pelé'],
-  ['Hôm nay tôi làm điều người khác không làm, để ngày mai tôi đạt được điều người khác không thể.', 'Jerry Rice'],
+  ['Máu, mồ hôi và sự tôn trọng. Hai thứ đầu bạn cho đi, thứ cuối cùng bạn phải giành lấy.', 'Dwayne "The Rock" Johnson'],
   ['Chăm chỉ đánh bại tài năng khi tài năng không chịu chăm chỉ.', 'Tim Notke'],
-  ['Bạn bỏ lỡ 100% những cú sút bạn không thực hiện.', 'Wayne Gretzky'],
-  ['Vấn đề không phải là bạn có bị đánh gục không, mà là bạn có đứng dậy không.', 'Vince Lombardi'],
-  ['Nhà vô địch cứ tiếp tục cho đến khi làm đúng.', 'Billie Jean King'],
-  ['Chúng ta là những gì ta lặp đi lặp lại. Xuất sắc không phải là một hành động, mà là một thói quen.', 'Will Durant'],
-  ['Hãy chăm sóc cơ thể. Đó là nơi duy nhất bạn phải sống.', 'Jim Rohn'],
-  ['Dù bạn nghĩ mình làm được hay không làm được, bạn đều đúng.', 'Henry Ford'],
-  ['Ngày dễ dàng duy nhất là ngày hôm qua.', 'Khẩu hiệu Navy SEAL'],
-  ['Ngã bảy lần, đứng dậy tám lần.', 'Tục ngữ Nhật Bản'],
-  ['Có công mài sắt, có ngày nên kim.', 'Tục ngữ Việt Nam'],
+  ['Hôm nay tôi làm điều người khác không làm, để ngày mai tôi đạt được điều người khác không thể.', 'Jerry Rice'],
+  ['Mỡ không tự biến mất vì bạn lướt xem người khác tập.', 'GYM DIHA'],
+  ['Không ai quan tâm bạn mệt. Người ta chỉ nhìn thấy kết quả.', 'GYM DIHA'],
+  ['Cơ thể bạn bây giờ là bản báo cáo của thói quen 6 tháng qua.', 'GYM DIHA'],
+  ['Bạn không thiếu thời gian. Bạn thiếu ưu tiên.', 'GYM DIHA'],
+  ['Động lực sẽ hết. Lịch tập thì vẫn còn đó.', 'GYM DIHA'],
+  ['Hôm nay bỏ tập là bạn đang ký tên đồng ý với phiên bản yếu hơn của mình.', 'GYM DIHA'],
+  ['Không ai đến cứu bạn đâu. Tự đứng dậy mà đi tập.', 'GYM DIHA'],
+  ['Mệt thì nghỉ một set. Bỏ cả buổi là thói quen xấu đang thắng.', 'GYM DIHA'],
+  ['Cái gương không nói dối. Lý do của bạn thì có.', 'GYM DIHA'],
+  ['Bạn sợ đau cơ một ngày, nhưng không sợ yếu cả đời?', 'GYM DIHA'],
+  ['Một năm nữa bạn sẽ ước mình đã bắt đầu từ hôm nay.', 'GYM DIHA'],
+  ['Ăn như cũ, tập như cũ, thì đừng mong thân hình mới.', 'GYM DIHA'],
+  ['Người ta thấy bạn đẹp sau 1 năm. Không ai thấy 200 buổi bạn lết vào phòng gym.', 'GYM DIHA'],
+  ['Thứ Hai không phải ngày bắt đầu. Ngay bây giờ mới là ngày bắt đầu.', 'GYM DIHA'],
+  ['Thoải mái là kẻ thù của tiến bộ.', 'GYM DIHA'],
+  ['Không tăng tạ, không tăng rep, thì cơ bắp lấy lý do gì để lớn?', 'GYM DIHA'],
+  ['Điện thoại để xa ra. Set tiếp theo đang chờ.', 'GYM DIHA'],
+  ['Bạn không cần thêm thông tin. Bạn cần làm điều mình đã biết.', 'GYM DIHA'],
+  ['Kỷ luật là làm cả khi không ai nhìn và không muốn làm.', 'GYM DIHA'],
+  ['Lười hôm nay thì trả giá bằng sức khỏe ngày mai. Lãi suất rất cao.', 'GYM DIHA'],
+  ['Bạn mạnh hơn cái cảm giác "để mai tính".', 'GYM DIHA'],
+  ['Mồ hôi là mỡ đang khóc.', 'GYM DIHA'],
+  ['Không đo thì không biết. Không ghi thì không tiến.', 'GYM DIHA'],
+  ['Đứng cân 3 tuần? Không phải do cơ địa, mà do bạn ăn nhiều hơn mình nghĩ.', 'GYM DIHA'],
+  ['Giỏi nhất không phải người tập hăng nhất, mà là người không bỏ buổi nào.', 'GYM DIHA'],
+  ['Bắt đầu tệ cũng được. Không bắt đầu mới là tệ nhất.', 'GYM DIHA'],
 ];
 
 let quoteIdx = null;
 const showQuote = () => { const [q, a] = QUOTES[quoteIdx]; $("#quote").textContent = `“${q}”`; $("#quote-author").textContent = `— ${a}`; };
-$('#new-quote').onclick = () => {
-  quoteIdx = (quoteIdx + 1 + Math.floor(Math.random() * (QUOTES.length - 1))) % QUOTES.length; // never the same one
-  showQuote();
-};
+function nextQuote() {
+  const box = $('.quote');
+  box.classList.add('fade');
+  setTimeout(() => {
+    quoteIdx = (quoteIdx + 1 + Math.floor(Math.random() * (QUOTES.length - 1))) % QUOTES.length; // never the same one
+    showQuote();
+    box.classList.remove('fade');
+  }, 250);
+}
+$('#new-quote').onclick = nextQuote;
+setInterval(() => { if (!document.hidden) nextQuote(); }, 60_000); // new quote every minute
 
 // ---------- Mascot: cycles through actions of its mood, tap for next ----------
 let mState, actIdx = 0;

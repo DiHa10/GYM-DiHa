@@ -50,6 +50,8 @@ button.small { padding: 4px 10px; font-size: .85rem; margin: 0; }
 .msg { font-weight: 600; font-size: 1.1rem; margin: 4px 0 0; }
 .quote { border-left: 4px solid var(--accent-2); }
 .quote small { color: var(--accent); font-weight: 600; }
+.quote p { transition: opacity .25s; }
+.quote.fade p { opacity: 0; }
 .quote p { margin: 4px 0 0; font-style: italic; font-size: 1.05rem; }
 .quote .author { font-style: normal; font-size: .9rem; font-weight: 700; color: var(--accent-2); text-align: right; }
 .banner { background: var(--grad); color: #fff; padding: 12px 14px; border-radius: 14px; margin-bottom: 12px; font-weight: 600; }

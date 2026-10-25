@@ -49,9 +49,14 @@ assert.equal(bmiInfo(50, 170).diff, 3.5);
 assert.equal(bmiInfo(60, 170).diff, 0);
 assert.equal(bmiInfo(60, 0), null);
 const W = (date, weight) => ({ date, weight });
-assert.match(bodyCheer([W('2026-10-01', 71), W('2026-10-08', 70)], 170), /Đã giảm 1 kg.*3.8 kg/);
-assert.match(bodyCheer([W('2026-10-01', 60)], 170), /chuẩn/);
+assert.match(bodyCheer([W('2026-10-01', 71), W('2026-10-08', 70)], 170), /Giảm 1 kg.*Còn 3.8 kg.*8 tuần/);
+assert.match(bodyCheer([W('2026-10-01', 72), W('2026-10-05', 71), W('2026-10-08', 70)], 170), /Tổng cộng giảm 2 kg/);
+assert.match(bodyCheer([W('2026-10-01', 69), W('2026-10-08', 70)], 170), /Tăng lại 1 kg/);
+assert.match(bodyCheer([W('2026-10-01', 60)], 170), /chuẩn \(53.5–66.2 kg\)/);
+assert.match(bodyCheer([W('2026-10-01', 65.5)], 170), /mép trên/);
+assert.match(bodyCheer([W('2026-10-01', 49), W('2026-10-08', 50)], 170), /Tăng 1 kg.*Còn thiếu 3.5 kg.*7 tuần/);
 assert.match(bodyCheer([W('2026-10-01', 60)], 0), /chiều cao/);
+assert.match(bodyCheer([], 170), /cân/);
 
 const ics = buildIcs(data.settings, wed);
 assert.match(ics, /DTSTART:20261021T180000/);

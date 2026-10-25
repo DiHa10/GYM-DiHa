@@ -115,20 +115,30 @@ export function bmiInfo(weight, heightCm) {
   return { bmi: +bmi.toFixed(1), cat, min, max, diff };
 }
 
-// Encouragement for the Body tab, based on BMI and change since previous weigh-in
+// Encouragement for the Body tab: BMI + change since last weigh-in + total change + realistic ETA (0.5 kg/week)
 export function bodyCheer(body, heightCm) {
   const ws = body.filter(b => b.weight).sort((a, b) => a.date.localeCompare(b.date));
-  if (!ws.length) return 'Ghi cân nặng đầu tiên để bắt đầu theo dõi nhé! ⚖️';
+  if (!ws.length) return 'Bước lên cân đi. Không đo thì không biết, không biết thì không thay đổi được. ⚖️';
   const last = ws[ws.length - 1].weight, prev = ws.length > 1 ? ws[ws.length - 2].weight : last;
-  const change = +(last - prev).toFixed(1), info = bmiInfo(last, heightCm);
-  if (!info) return 'Nhập chiều cao để man tính BMI cho bạn nhé! 📏';
-  if (info.cat === 'normal') return change ? `Cân nặng chuẩn rồi! Giữ vững phong độ nhé 💪` : 'Cân nặng chuẩn và ổn định. Tuyệt vời! 🏆';
-  if (info.cat === 'under') return change > 0
-    ? `Đã tăng ${change} kg! Còn ${info.diff} kg nữa là chuẩn, cố lên 💪`
-    : `Cần tăng thêm ${info.diff} kg. Ăn đủ chất và tập tạ đều nhé! 🍚`;
-  return change < 0
-    ? `Đã giảm ${-change} kg so với lần trước! Tiếp tục nào, còn ${info.diff} kg nữa là chuẩn 🔥`
-    : `Còn ${info.diff} kg nữa về mức chuẩn. Kiên trì tập và ăn uống hợp lý, bạn làm được! 💪`;
+  const change = +(last - prev).toFixed(1), total = +(last - ws[0].weight).toFixed(1), info = bmiInfo(last, heightCm);
+  if (!info) return 'Nhập chiều cao để man tính BMI và mức cân chuẩn cho bạn. 📏';
+  const weeks = Math.ceil(info.diff / 0.5);
+  const sinceStart = ws.length > 2 && total ? ` Tổng cộng ${total > 0 ? 'tăng' : 'giảm'} ${Math.abs(total)} kg từ lần cân đầu.` : '';
+  if (info.cat === 'normal') {
+    const edge = +(info.max - last).toFixed(1);
+    if (edge <= 1) return `Đang ở vùng chuẩn nhưng chỉ còn ${edge} kg là chạm mép trên. Siết lại ăn uống trước khi trượt. ⚠️`;
+    return change > 0
+      ? `Vẫn chuẩn, nhưng vừa tăng ${change} kg. Giữ nhịp tập, đừng để tăng thành thói quen.${sinceStart} 💪`
+      : `Cân nặng chuẩn (${info.min}–${info.max} kg). Giữ được mới là khó, bạn đang làm tốt.${sinceStart} 🏆`;
+  }
+  if (info.cat === 'under') {
+    if (change > 0) return `Tăng ${change} kg, đúng hướng!${sinceStart} Còn thiếu ${info.diff} kg, khoảng ${weeks} tuần nếu ăn đủ đạm và tập nặng đều. 💪`;
+    if (change < 0) return `Lại giảm ${-change} kg. Đừng bỏ bữa, thêm bữa phụ giàu đạm. Còn thiếu ${info.diff} kg. 🍚`;
+    return `Thiếu ${info.diff} kg so với chuẩn. Ăn dư khoảng 300 kcal mỗi ngày và tập tạ, cơ sẽ lên. 🍚`;
+  }
+  if (change < 0) return `Giảm ${-change} kg so với lần trước!${sinceStart} Còn ${info.diff} kg, giữ nhịp 0.5 kg/tuần là khoảng ${weeks} tuần nữa. 🔥`;
+  if (change > 0) return `Tăng lại ${change} kg. Một lần thì không sao, đừng để thành hai. Còn ${info.diff} kg về chuẩn, quay lại kỷ luật ngay hôm nay. 🎯`;
+  return `Dư ${info.diff} kg so với chuẩn. Muốn kim cân nhúc nhích thì phải thay đổi: bớt đồ ngọt, thêm cardio, ngủ đủ. Khoảng ${weeks} tuần là tới. 🔥`;
 }
 
 // Recurring calendar events with alarm: phone calendar reminds on time, no server needed
