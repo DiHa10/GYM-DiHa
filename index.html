@@ -14,7 +14,7 @@
 </head>
 <body>
   <main>
-    <header class="topbar"><b>💪 Gym Man</b><button id="theme-btn" class="theme-btn" type="button"></button></header>
+    <header class="topbar"><span class="brand"><span class="brand-mark"><i data-icon="logo"></i></span><b>GYM DIHA</b></span><button id="theme-btn" class="theme-btn" type="button"></button></header>
     <section id="home" class="tab active">
       <div id="banner" class="banner" hidden></div>
       <div id="backup-banner" class="banner soft" hidden role="button" tabindex="0">💾 Đã lâu chưa sao lưu dữ liệu. Chạm để mở phần Sao lưu.</div>
@@ -24,7 +24,7 @@
         <small id="mascot-action"></small>
       </div>
       <div class="card quote">
-        <div class="row between"><small>💬 Động lực hôm nay</small><button id="new-quote" class="small" aria-label="Đổi câu khác">🔄 Câu khác</button></div>
+        <div class="row between"><small><i data-icon="quote"></i> Động lực hôm nay</small><button id="new-quote" class="small" aria-label="Đổi câu khác"><i data-icon="refresh"></i> Câu khác</button></div>
         <p id="quote"></p>
         <p id="quote-author" class="author"></p>
       </div>
@@ -43,21 +43,21 @@
     <section id="log" class="tab">
       <div class="card">
         <h2>Ghi buổi tập</h2>
-        <p id="editing" class="hint" hidden>✏️ Đang sửa buổi <b></b> <button class="small" id="cancel-edit" type="button">Hủy sửa</button></p>
+        <p id="editing" class="hint" hidden><i data-icon="pencil"></i> Đang sửa buổi <b></b> <button class="small" id="cancel-edit" type="button">Hủy sửa</button></p>
         <label>Ngày <input type="date" id="log-date"></label>
         <div class="kind-switch" role="group" aria-label="Loại buổi tập">
-          <button type="button" data-kind="gym">🏋️ Tập gym</button>
-          <button type="button" data-kind="badminton">🏸 Cầu lông</button>
+          <button type="button" data-kind="gym"><i data-icon="dumbbell"></i> Tập gym</button>
+          <button type="button" data-kind="badminton"><i data-icon="racket"></i> Cầu lông</button>
         </div>
         <div id="bad-fields" class="row" hidden>
           <label>Thời gian (phút) <input type="number" id="bad-min" min="0" inputmode="numeric" placeholder="90"></label>
           <label>Số trận <input type="number" id="bad-games" min="0" inputmode="numeric" placeholder="5"></label>
           <label>Cường độ <select id="bad-int"><option value="1">Nhẹ</option><option value="2">Vừa</option><option value="3">Nặng</option></select></label>
-          <p class="hint">Bài bổ trợ (bộ chân, sức bật…) thêm bên dưới hoặc chọn trong 📚 Thư viện → Cầu lông.</p>
+          <p class="hint">Bài bổ trợ (bộ chân, sức bật…) thêm bên dưới hoặc chọn trong Thư viện → Cầu lông.</p>
         </div>
         <div id="exercises"></div>
         <datalist id="ex-names"></datalist>
-        <div class="row"><button id="add-ex">+ Thêm bài tập</button><button id="lib-open" type="button">📚 Chọn từ thư viện</button></div>
+        <div class="row"><button id="add-ex">+ Thêm bài tập</button><button id="lib-open" type="button"><i data-icon="book"></i> Chọn từ thư viện</button></div>
         <button id="save-log" class="primary">Lưu buổi tập</button>
         <p class="hint">Không có thời gian ghi chi tiết? Cứ bấm Lưu để đánh dấu đã tập.</p>
       </div>
@@ -76,9 +76,9 @@
       <div class="card">
         <h2>Nhắc nhở</h2>
         <p class="hint"><b>Cách chắc chắn nhất:</b> tải file lịch rồi mở nó trên điện thoại để thêm vào Lịch (Google Calendar / iPhone). Lịch sẽ báo đúng giờ, kể cả khi bạn không mở app. Mỗi lần đổi lịch tập thì tải lại file này.</p>
-        <button id="dl-ics" class="primary">📅 Tải lịch nhắc (.ics)</button>
+        <button id="dl-ics" class="primary"><i data-icon="download"></i> Tải lịch nhắc (.ics)</button>
         <p class="hint">Ngoài ra app sẽ báo khi bạn đang mở app mà đã qua giờ tập.</p>
-        <button id="notif">🔔 Bật thông báo trong app</button>
+        <button id="notif">Bật thông báo trong app</button>
       </div>
       <div class="card">
         <h2>Sao lưu</h2>
@@ -113,17 +113,17 @@
     </section>
 
     <section id="library" class="tab">
-      <h2>📚 Thư viện bài tập</h2>
+      <h2>Thư viện bài tập</h2>
       <input id="lib-search" type="search" placeholder="Tìm bài (VD: squat, đẩy ngực)…" aria-label="Tìm bài tập">
       <div id="lib-groups" class="chips"></div>
       <div id="lib-subs" class="chips subs"></div>
       <div class="row between lib-tools">
-        <span class="hint">🦴 Khớp · 🎯 Dễ tập · 🔥 Hiệu quả</span>
+        <span class="hint legend"><i data-icon="bone"></i> Khớp <i data-icon="target"></i> Dễ tập <i data-icon="flame"></i> Hiệu quả</span>
         <select id="lib-sort" aria-label="Sắp xếp bài tập">
           <option value="">Sắp xếp: mặc định</option>
-          <option value="0">🦴 Thân thiện khớp</option>
-          <option value="1">🎯 Dễ tập nhất</option>
-          <option value="2">🔥 Hiệu quả nhất</option>
+          <option value="0">Thân thiện khớp nhất</option>
+          <option value="1">Dễ tập nhất</option>
+          <option value="2">Hiệu quả nhất</option>
         </select>
       </div>
       <p class="hint">Chạm vào bài để xem chuyển động, cách tập và điểm sao. Tick ô bên phải để chọn nhiều bài.</p>
@@ -138,11 +138,11 @@
   </main>
 
   <nav>
-    <button data-go="home" class="active">🏠<span>Hôm nay</span></button>
-    <button data-go="log">🏋️<span>Tập</span></button>
-    <button data-go="plan">📅<span>Lịch</span></button>
-    <button data-go="body">⚖️<span>Cơ thể</span></button>
-    <button data-go="library">📚<span>Thư viện</span></button>
+    <button data-go="home" class="active"><i data-icon="home"></i><span>Hôm nay</span></button>
+    <button data-go="log"><i data-icon="dumbbell"></i><span>Tập</span></button>
+    <button data-go="plan"><i data-icon="calendar"></i><span>Lịch</span></button>
+    <button data-go="body"><i data-icon="scale"></i><span>Cơ thể</span></button>
+    <button data-go="library"><i data-icon="book"></i><span>Thư viện</span></button>
   </nav>
   <div id="rest" class="rest" hidden>
     <span>⏱ Nghỉ <b id="rest-left">90</b>s</span>

@@ -11,6 +11,18 @@
 :root[data-theme="light"] { color-scheme: light; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; padding-top: env(safe-area-inset-top); }
 .topbar b { font-size: 1.05rem; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand b { letter-spacing: .12em; font-weight: 800; }
+.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: #000; color: #fff; box-shadow: 0 0 0 1px rgb(255 255 255 / .12); }
+.brand-mark .ic { width: 24px; height: 24px; stroke-width: 2.2; }
+/* Thin-stroke SVG icons: color follows text, so light/dark themes work automatically */
+.ic { width: 1.15em; height: 1.15em; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.theme-btn .ic { width: 20px; height: 20px; vertical-align: middle; }
+.mini .ic { width: 12px; height: 12px; vertical-align: -1px; margin-right: 1px; }
+.legend .ic { margin-left: 4px; }
+.stars-row .ic { width: 16px; height: 16px; }
+.day b .ic { width: 16px; height: 16px; vertical-align: -2px; stroke-width: 2.4; }
+.set button .ic { vertical-align: -3px; }
 .theme-btn { margin: 0; width: 38px; height: 38px; padding: 0; border-radius: 50%; font-size: 1.05rem; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
@@ -94,7 +106,8 @@ label.inline input { width: 80px; margin: 0; }
 #chart svg { width: 100%; height: auto; }
 
 nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
-nav button { flex: 1; max-width: 104px; border: 0; margin: 0; border-radius: 0; background: none; font-size: 1.3rem; padding: 8px 0; color: var(--muted); }
+nav button { flex: 1; max-width: 104px; border: 0; margin: 0; border-radius: 0; background: none; padding: 8px 0 6px; color: var(--muted); }
+nav button .ic { width: 24px; height: 24px; display: block; margin: 0 auto 2px; }
 nav button span { display: block; font-size: .7rem; }
 nav button.active { color: var(--accent); }
 .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 99px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: 90%; text-align: center; }

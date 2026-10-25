@@ -3,6 +3,8 @@ import {
   streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
 } from './logic.js';
 import { mascotSvg, ACTIONS } from './mascot.js';
+import { icon, hydrateIcons } from './icons.js';
+hydrateIcons();
 import { LIBRARY, NO_PHOTO, photoSlug, groupFor, groupItems, RATINGS, RATING_LABELS } from './library.js';
 
 const $ = s => document.querySelector(s);
@@ -116,7 +118,7 @@ function render() {
     const d = new Date(weekStart(now)); d.setDate(d.getDate() + i);
     const key = ymd(d), sched = settings.days.includes(dow);
     const cls = ['day', sched && 'sched', trained.has(key) && 'done', sched && !trained.has(key) && key < today && 'missed', key === today && 'today'].filter(Boolean).join(' ');
-    return `<div class="${cls}">${DAY_NAMES[dow]}<b>${badDays.has(key) ? '🏸' : trained.has(key) ? '✓' : d.getDate()}</b><small>${esc(settings.plan[dow] || '')}</small></div>`;
+    return `<div class="${cls}">${DAY_NAMES[dow]}<b>${badDays.has(key) ? icon('racket') : trained.has(key) ? icon('check') : d.getDate()}</b><small>${esc(settings.plan[dow] || '')}</small></div>`;
   }).join('');
   $('#streak').textContent = streaks(data, now).current;
   $('#total').textContent = sessions.length;
@@ -140,9 +142,9 @@ function render() {
   $('#time').value = settings.time;
   $('#plan-days').innerHTML = WEEK_ORDER.map(dow => `<div class="plan-day">
     <input type="checkbox" data-day="${dow}" ${settings.days.includes(dow) ? 'checked' : ''} aria-label="Tập ${DAY_NAMES[dow]}">
-    <b>${DAY_NAMES[dow]}</b><input type="text" data-muscle="${dow}" placeholder="Nhóm cơ (VD: Ngực)" value="${esc(settings.plan[dow] || '')}"><button class="small" type="button" data-lib-day="${dow}" aria-label="Chọn bài mẫu ${DAY_NAMES[dow]} từ thư viện">📚</button>
+    <b>${DAY_NAMES[dow]}</b><input type="text" data-muscle="${dow}" placeholder="Nhóm cơ (VD: Ngực)" value="${esc(settings.plan[dow] || '')}"><button class="small" type="button" data-lib-day="${dow}" aria-label="Chọn bài mẫu ${DAY_NAMES[dow]} từ thư viện">${icon('book')}</button>
     <textarea data-tpl="${dow}" rows="2" placeholder="Bài tập, mỗi dòng 1 bài" aria-label="Bài tập mẫu ${DAY_NAMES[dow]}">${esc((settings.templates[dow] || []).join('\n'))}</textarea></div>`).join('');
-  $('#notif').textContent = 'Notification' in window && Notification.permission === 'granted' ? '🔔 Thông báo đã bật' : '🔔 Bật thông báo trong app';
+  $('#notif').innerHTML = icon('bell') + ('Notification' in window && Notification.permission === 'granted' ? ' Thông báo đã bật' : ' Bật thông báo trong app');
 
   // Body
   const body = [...data.body].sort((a, b) => a.date.localeCompare(b.date));
@@ -207,8 +209,8 @@ function addSetRow(box, reps = '', kg = '') {
   row.innerHTML = `<span class="hint">#${box.children.length + 1}</span>
     <input type="number" class="reps" placeholder="Reps" inputmode="numeric" min="0" value="${reps}" aria-label="Số reps">
     <input type="number" class="kg" placeholder="Kg" inputmode="decimal" step="0.5" min="0" value="${kg}" aria-label="Mức tạ kg">
-    <button class="small check" type="button" aria-label="Xong set, bắt đầu nghỉ">✓</button>
-    <button class="small del" type="button" aria-label="Xóa set">✕</button>`;
+    <button class="small check" type="button" aria-label="Xong set, bắt đầu nghỉ">${icon('check')}</button>
+    <button class="small del" type="button" aria-label="Xóa set">${icon('x')}</button>`;
   row.querySelector('.del').onclick = () => row.remove();
   row.querySelector('.check').onclick = () => { if (row.classList.toggle('done')) { navigator.vibrate?.(30); startRest(); } };
   box.append(row);
@@ -242,7 +244,7 @@ function addExercise(name = '', sets = null) {
 
 let editingId = null, dirty = false, logKind = 'gym';
 const INTENSITY = ['', 'Nhẹ', 'Vừa', 'Nặng'];
-const badmintonText = s => ['🏸 Cầu lông', s.minutes && `${s.minutes} phút`, s.games && `${s.games} trận`, INTENSITY[s.intensity]].filter(Boolean).join(' · ');
+const badmintonText = s => [icon('racket') + ' Cầu lông', s.minutes && `${s.minutes} phút`, s.games && `${s.games} trận`, INTENSITY[s.intensity]].filter(Boolean).join(' · ');
 function setKind(k, fields = {}) {
   logKind = k;
   document.querySelectorAll('[data-kind]').forEach(b => b.classList.toggle('on', b.dataset.kind === k));
@@ -387,18 +389,18 @@ document.addEventListener('click', e => {
 });
 
 // ---------- Theme: auto (follow phone) -> light -> dark ----------
-const THEMES = { auto: ['🌓', 'Tự động theo máy'], light: ['☀️', 'Sáng'], dark: ['🌙', 'Tối'] };
+const THEMES = { auto: ['contrast', 'Tự động theo máy'], light: ['sun', 'Sáng'], dark: ['moon', 'Tối'] };
 function applyTheme(t) {
   if (t === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
   try { t === 'auto' ? localStorage.removeItem('theme') : localStorage.setItem('theme', t); } catch {}
-  $('#theme-btn').textContent = THEMES[t][0];
+  $('#theme-btn').innerHTML = icon(THEMES[t][0]);
   $('#theme-btn').setAttribute('aria-label', `Chế độ màu: ${THEMES[t][1]}. Chạm để đổi`);
   return t;
 }
 let theme = applyTheme(document.documentElement.dataset.theme || 'auto');
 $('#theme-btn').onclick = () => {
   theme = applyTheme({ auto: 'light', light: 'dark', dark: 'auto' }[theme]);
-  toast(`${THEMES[theme][0]} Chế độ: ${THEMES[theme][1]}`);
+  toast(`Chế độ màu: ${THEMES[theme][1]}`);
 };
 
 // ---------- Exercise library ----------
@@ -415,11 +417,11 @@ function libItem([name, vi, cue, sub], best, showSub) {
   return `<div class="lib-item ${libSel.has(name) ? 'sel' : ''}" data-name="${esc(name)}">
     ${photo(name)}
     <div class="lib-text"><b>${esc(name)}</b><small>${vi}${showSub ? ' · ' + sub : ''}</small>
-      <span class="mini">🦴${r[0]} 🎯${r[1]} 🔥${r[2]}</span>${pr ? `<span class="pr">🏆 Kỷ lục ${pr} kg</span>` : ''}</div>
+      <span class="mini">${icon('bone')}${r[0]} ${icon('target')}${r[1]} ${icon('flame')}${r[2]}</span>${pr ? `<span class="pr">🏆 Kỷ lục ${pr} kg</span>` : ''}</div>
     <input type="checkbox" data-ex="${esc(name)}" ${libSel.has(name) ? 'checked' : ''} aria-label="Chọn ${esc(name)}">
     ${libOpen === name ? `<div class="lib-detail">${photo(name)}
-      ${RATING_LABELS.map(([ic, label], k) => `<div class="stars-row"><span>${ic}</span><span>${label}</span>${stars(r[k])}</div>`).join('')}
-      <p>📋 ${cue}</p></div>` : ''}
+      ${RATING_LABELS.map(([ic, label], k) => `<div class="stars-row">${icon(ic)}<span>${label}</span>${stars(r[k])}</div>`).join('')}
+      <p>${cue}</p></div>` : ''}
   </div>`;
 }
 
@@ -427,7 +429,7 @@ function drawLibrary() {
   const q = $('#lib-search').value.trim().toLowerCase(), best = personalRecords(data.sessions).best;
   const sortKey = $('#lib-sort').value, g = LIBRARY.find(x => x.group === libGroup);
   const sorted = list => sortKey === '' ? list : [...list].sort((a, b) => RATINGS[b[0]][sortKey] - RATINGS[a[0]][sortKey]);
-  $('#lib-groups').innerHTML = LIBRARY.map(x => `<button class="chip ${!q && x.group === libGroup ? 'on' : ''}" type="button" data-group="${x.group}">${x.icon} ${x.group}</button>`).join('');
+  $('#lib-groups').innerHTML = LIBRARY.map(x => `<button class="chip ${!q && x.group === libGroup ? 'on' : ''}" type="button" data-group="${x.group}">${x.group}</button>`).join('');
   $('#lib-subs').innerHTML = q ? '' : ['', ...g.subs.map(s => s[0])].map(s => `<button class="chip ${s === libSub ? 'on' : ''}" type="button" data-sub="${s}">${s || 'Tất cả'}</button>`).join('');
   let html;
   if (q) {

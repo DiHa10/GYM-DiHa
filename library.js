@@ -215,7 +215,7 @@ export const LIBRARY = [
 ];
 
 // Stars 1-5: [joint-friendly, easy to learn, effective]. General guidance for healthy adults, not medical advice.
-export const RATING_LABELS = [['🦴', 'Thân thiện khớp'], ['🎯', 'Dễ tập'], ['🔥', 'Hiệu quả']];
+export const RATING_LABELS = [['bone', 'Thân thiện khớp'], ['target', 'Dễ tập'], ['flame', 'Hiệu quả']]; // [icon name, label]
 export const RATINGS = {
   'Incline bench press': [3, 3, 5], 'Incline dumbbell press': [4, 4, 5], 'Incline dumbbell fly': [3, 3, 3], 'Low cable fly': [5, 4, 3],
   'Bench press': [3, 3, 5], 'Dumbbell bench press': [4, 4, 5], 'Dumbbell fly': [3, 3, 3], 'Chest press machine': [5, 5, 4], 'Pec deck': [4, 5, 3], 'Push up': [4, 5, 4],
