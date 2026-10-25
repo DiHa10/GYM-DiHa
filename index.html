@@ -45,6 +45,16 @@
         <h2>Ghi buổi tập</h2>
         <p id="editing" class="hint" hidden>✏️ Đang sửa buổi <b></b> <button class="small" id="cancel-edit" type="button">Hủy sửa</button></p>
         <label>Ngày <input type="date" id="log-date"></label>
+        <div class="kind-switch" role="group" aria-label="Loại buổi tập">
+          <button type="button" data-kind="gym">🏋️ Tập gym</button>
+          <button type="button" data-kind="badminton">🏸 Cầu lông</button>
+        </div>
+        <div id="bad-fields" class="row" hidden>
+          <label>Thời gian (phút) <input type="number" id="bad-min" min="0" inputmode="numeric" placeholder="90"></label>
+          <label>Số trận <input type="number" id="bad-games" min="0" inputmode="numeric" placeholder="5"></label>
+          <label>Cường độ <select id="bad-int"><option value="1">Nhẹ</option><option value="2">Vừa</option><option value="3">Nặng</option></select></label>
+          <p class="hint">Bài bổ trợ (bộ chân, sức bật…) thêm bên dưới hoặc chọn trong 📚 Thư viện → Cầu lông.</p>
+        </div>
         <div id="exercises"></div>
         <datalist id="ex-names"></datalist>
         <div class="row"><button id="add-ex">+ Thêm bài tập</button><button id="lib-open" type="button">📚 Chọn từ thư viện</button></div>

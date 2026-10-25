@@ -1,5 +1,5 @@
 {
-  "name": "Gym Man - Theo dÃµi táº­p gym",
+  "name": "Gym Man - Theo dõi tập gym",
   "short_name": "Gym Man",
   "start_url": "./",
   "scope": "./",
@@ -44,6 +44,17 @@
       "name": "Ghi cân nặng",
       "short_name": "Cân nặng",
       "url": "./?tab=body",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Ghi buổi cầu lông",
+      "short_name": "Cầu lông",
+      "url": "./?tab=log&kind=badminton",
       "icons": [
         {
           "src": "icon-192.png",

@@ -88,9 +88,14 @@ function drawMascot() {
   $('#mascot').innerHTML = confetti + mascotSvg(mState, actIdx, still);
   $('#mascot-action').textContent = `Man đang: ${acts[actIdx % acts.length].name} · chạm để đổi`;
 }
-$('.mascot-card').onclick = () => { actIdx++; drawMascot(); };
-$('.mascot-card').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); actIdx++; drawMascot(); } };
-setInterval(() => { if (!document.hidden) { actIdx++; drawMascot(); } }, 7000);
+// Next action with a short fade, so the pose change is not a hard jump
+function nextAction() {
+  $('#mascot').classList.add('fade');
+  setTimeout(() => { actIdx++; drawMascot(); $('#mascot').classList.remove('fade'); }, 200);
+}
+$('.mascot-card').onclick = nextAction;
+$('.mascot-card').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nextAction(); } };
+setInterval(() => { if (!document.hidden) nextAction(); }, 7000);
 
 // ---------- Render ----------
 function render() {
@@ -98,8 +103,7 @@ function render() {
   const state = mascotState(data, now), msgs = MSG[state];
 
   // Home
-  if (state !== mState) { mState = state; actIdx = 0; }
-  drawMascot();
+  if (state !== mState) { mState = state; actIdx = 0; drawMascot(); }
   $('#mascot-msg').textContent = msgs[now.getDate() % msgs.length];
   quoteIdx ??= Math.floor(new Date(today).getTime() / 864e5) % QUOTES.length; // new quote each day
   showQuote();
@@ -107,12 +111,12 @@ function render() {
   const done = weekDone(sessions, now);
   $('#week-count').textContent = `${done}/${settings.goal} buổi`;
   $('#week-bar').style.width = Math.min(100, done / settings.goal * 100) + '%';
-  const trained = new Set(sessions.map(s => s.date));
+  const trained = new Set(sessions.map(s => s.date)), badDays = new Set(sessions.filter(s => s.kind === 'badminton').map(s => s.date));
   $('#week-days').innerHTML = WEEK_ORDER.map((dow, i) => {
     const d = new Date(weekStart(now)); d.setDate(d.getDate() + i);
     const key = ymd(d), sched = settings.days.includes(dow);
     const cls = ['day', sched && 'sched', trained.has(key) && 'done', sched && !trained.has(key) && key < today && 'missed', key === today && 'today'].filter(Boolean).join(' ');
-    return `<div class="${cls}">${DAY_NAMES[dow]}<b>${trained.has(key) ? '✓' : d.getDate()}</b><small>${esc(settings.plan[dow] || '')}</small></div>`;
+    return `<div class="${cls}">${DAY_NAMES[dow]}<b>${badDays.has(key) ? '🏸' : trained.has(key) ? '✓' : d.getDate()}</b><small>${esc(settings.plan[dow] || '')}</small></div>`;
   }).join('');
   $('#streak').textContent = streaks(data, now).current;
   $('#total').textContent = sessions.length;
@@ -127,7 +131,8 @@ function render() {
   $('#ex-names').innerHTML = [...new Set([...sessions.flatMap(s => s.exercises.map(e => e.name)), ...libNames])].map(n => `<option value="${esc(n)}">`).join('');
   $('#history').innerHTML = [...sessions].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60).map(s => `
     <div class="item"><div class="row"><b>${fmtDate(s.date)}</b><span><button class="small" data-edit-session="${s.id}">Sửa</button> <button class="small" data-del-session="${s.id}">Xóa</button></span></div>
-    ${s.exercises.map(e => `<p><b>${esc(e.name)}</b>: ${e.sets.map(x => `${x.reps}×${x.kg || 0}kg`).join(', ')}</p>`).join('') || '<p>Đã tập (không ghi chi tiết)</p>'}</div>`).join('')
+    ${s.kind === 'badminton' ? `<p>${badmintonText(s)}</p>` : ''}
+    ${s.exercises.map(e => `<p><b>${esc(e.name)}</b>: ${e.sets.map(x => `${x.reps}×${x.kg || 0}kg`).join(', ')}</p>`).join('') || (s.kind ? '' : '<p>Đã tập (không ghi chi tiết)</p>')}</div>`).join('')
     || '<p class="hint">Chưa có buổi tập nào.</p>';
 
   // Plan
@@ -235,12 +240,24 @@ function addExercise(name = '', sets = null) {
   return ex;
 }
 
-let editingId = null, dirty = false;
+let editingId = null, dirty = false, logKind = 'gym';
+const INTENSITY = ['', 'Nhẹ', 'Vừa', 'Nặng'];
+const badmintonText = s => ['🏸 Cầu lông', s.minutes && `${s.minutes} phút`, s.games && `${s.games} trận`, INTENSITY[s.intensity]].filter(Boolean).join(' · ');
+function setKind(k, fields = {}) {
+  logKind = k;
+  document.querySelectorAll('[data-kind]').forEach(b => b.classList.toggle('on', b.dataset.kind === k));
+  $('#bad-fields').hidden = k !== 'badminton';
+  $('#bad-min').value = fields.minutes || '';
+  $('#bad-games').value = fields.games || '';
+  $('#bad-int').value = fields.intensity || 2;
+}
+document.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => setKind(b.dataset.kind));
 const dayOf = date => new Date(date + 'T00:00').getDay();
 
 function fillTemplate() {
   $('#exercises').innerHTML = '';
-  const tpl = data.settings.templates[dayOf($('#log-date').value)] || [];
+  const day = dayOf($('#log-date').value), tpl = data.settings.templates[day] || [];
+  setKind(groupFor(data.settings.plan[day]) === 'Cầu lông' ? 'badminton' : 'gym'); // day planned as "Cầu lông" opens in badminton mode
   tpl.length ? tpl.forEach(n => addExercise(n)) : addExercise();
   dirty = false;
 }
@@ -258,6 +275,7 @@ function editSession(id) {
   if (!s) return;
   editingId = id;
   $('#log-date').value = s.date;
+  setKind(s.kind || 'gym', s);
   $('#exercises').innerHTML = '';
   s.exercises.length ? s.exercises.forEach(e => addExercise(e.name, e.sets)) : addExercise();
   $('#editing').hidden = false;
@@ -280,15 +298,23 @@ $('#save-log').onclick = e => {
   })).filter(e => e.name && e.sets.length);
   const before = personalRecords(data.sessions).count;
   const wasCelebrating = mascotState(data, new Date()) === 'celebrate';
+  const bad = logKind === 'badminton'
+    ? { kind: 'badminton', minutes: +$('#bad-min').value || 0, games: +$('#bad-games').value || 0, intensity: +$('#bad-int').value }
+    : null;
   const same = !editingId && data.sessions.find(s => s.date === date);
-  if (editingId) Object.assign(data.sessions.find(s => s.id === editingId), { date, exercises });
-  else if (same && confirm(`Ngày ${fmtDate(date)} đã có buổi tập.\nOK = gộp vào buổi đó · Hủy = lưu thành buổi riêng`)) same.exercises.push(...exercises);
-  else data.sessions.push({ id: uid(), date, exercises });
+  if (editingId) {
+    const s = data.sessions.find(x => x.id === editingId);
+    ['kind', 'minutes', 'games', 'intensity'].forEach(k => delete s[k]); // switching badminton -> gym drops its fields
+    Object.assign(s, { date, exercises }, bad);
+  } else if (same && confirm(`Ngày ${fmtDate(date)} đã có buổi tập.\nOK = gộp vào buổi đó · Hủy = lưu thành buổi riêng`)) {
+    same.exercises.push(...exercises);
+    Object.assign(same, bad);
+  } else data.sessions.push({ id: uid(), date, exercises, ...bad });
   btn.disabled = true; setTimeout(() => { btn.disabled = false; }, 800); // stop double-tap duplicates
   save();
   const prs = personalRecords(data.sessions).count - before;
   const nowCelebrating = mascotState(data, new Date()) === 'celebrate';
-  toast(!wasCelebrating && nowCelebrating ? '🎉 ĐỦ BUỔI TUẦN NÀY! Man nhảy múa luôn!' : prs > 0 ? `📈 Phá ${prs} kỷ lục mới! Quá mạnh!` : '💪 Đã lưu! Giỏi lắm!');
+  toast(!wasCelebrating && nowCelebrating ? '🎉 ĐỦ BUỔI TUẦN NÀY! Man nhảy múa luôn!' : prs > 0 ? `📈 Phá ${prs} kỷ lục mới! Quá mạnh!` : bad ? '🏸 Đã lưu buổi cầu lông! Đánh hay lắm!' : '💪 Đã lưu! Giỏi lắm!');
   resetLog();
   go('home');
 };
@@ -379,7 +405,7 @@ $('#theme-btn').onclick = () => {
 let libGroup = LIBRARY[0].group, libSub = '', libOpen = null, libDay = null; // libSub '' = all sub-areas
 const libSel = new Set();
 const photo = (name, cls = '') => NO_PHOTO.has(name)
-  ? `<div class="anim ${cls}" aria-hidden="true">🤸</div>`
+  ? `<div class="anim ${cls}" aria-hidden="true">${NO_PHOTO.get(name)}</div>`
   : `<div class="anim ${cls}"><img src="ex/${photoSlug(name)}-0.jpg" alt="${esc(name)} – tư thế đầu" loading="lazy"><img src="ex/${photoSlug(name)}-1.jpg" alt="" loading="lazy"></div>`;
 
 const stars = n => `<span class="stars" aria-label="${n} trên 5 sao">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span>`;
@@ -556,9 +582,10 @@ if ('serviceWorker' in navigator) {
 navigator.storage?.persist?.(); // ask Android not to evict app data when storage runs low
 $('#b-date').value = ymd(new Date());
 resetLog();
-const startTab = new URLSearchParams(location.search).get('tab');
+const startTab = new URLSearchParams(location.search).get('tab'), startKind = new URLSearchParams(location.search).get('kind');
 history.replaceState({ tab: 'home' }, '', location.pathname); // also drops ?tab= from home-screen shortcuts
 if (['log', 'plan', 'body', 'library'].includes(startTab)) go(startTab);
+if (startKind === 'badminton') setKind('badminton');
 checkReminder();
 setInterval(checkReminder, 60_000);
 document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && checkReminder());

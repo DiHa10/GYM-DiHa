@@ -31,6 +31,8 @@ button.small { padding: 4px 10px; font-size: .85rem; margin: 0; }
 .hint { color: var(--muted); font-size: .85rem; margin: 6px 0; }
 
 .mascot-card { text-align: center; background: linear-gradient(180deg, var(--accent-soft), var(--card) 70%); cursor: pointer; overflow: hidden; position: relative; }
+#mascot { transition: opacity .2s; }
+#mascot.fade { opacity: 0; }
 #mascot svg { width: 190px; height: 217px; }
 #mascot-action { color: var(--muted); font-size: .8rem; }
 .msg { font-weight: 600; font-size: 1.1rem; margin: 4px 0 0; }
@@ -76,6 +78,10 @@ label.inline input { width: 80px; margin: 0; }
 .bmi-scale span { height: 100%; }
 .bmi-marker { position: absolute; top: -4px; width: 4px; height: 18px; background: var(--text); border-radius: 2px; transform: translateX(-50%); }
 .bmi-labels { display: flex; justify-content: space-between; font-size: .7rem; color: var(--muted); }
+.kind-switch { display: flex; gap: 6px; margin: 4px 0 10px; }
+.kind-switch button { flex: 1; margin: 0; }
+.kind-switch button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+#bad-fields select { width: 100%; margin-top: 4px; padding: 10px; }
 .prev { color: var(--accent); font-size: .8rem; min-height: 1em; }
 .item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
 .item .row { justify-content: space-between; flex-wrap: nowrap; }

@@ -67,12 +67,14 @@ export function mascotSvg(state, idx = 0, still = false) {
   const ease = `calcMode="spline" keyTimes="${kt}" keySplines="${Array(fr.length - 1).fill('.45 0 .55 1').join(';')}" dur="${dur}" repeatCount="indefinite"`;
   const anim = (attr, f) => `<animate attributeName="${attr}" values="${fr.map(f).join(';')}" ${ease}/>`;
   const move = f => `<animateTransform attributeName="transform" type="translate" values="${fr.map(f).join(';')}" ${ease}/>`;
-  const armD = (p, k) => `M${SH[k]} L${p['a' + k].slice(0, 2)} L${p['a' + k].slice(2)}`;
-  const legD = (p, k) => `M${HIP[k][0] + p.x},${HIP[k][1] + p.y} L${p['l' + k].slice(0, 2)} L${p['l' + k].slice(2)}`;
-  // Shorts leg = first 55% of the thigh, so it bends with the leg (squat, jump)
+  // Limbs are quadratic curves with the joint as control point: soft elbows/knees, morph smoothly between poses
+  const armD = (p, k) => `M${SH[k]} Q${p['a' + k].slice(0, 2)} ${p['a' + k].slice(2)}`;
+  const legD = (p, k) => `M${HIP[k][0] + p.x},${HIP[k][1] + p.y} Q${p['l' + k].slice(0, 2)} ${p['l' + k].slice(2)}`;
+  // Shorts leg follows the start of the leg curve (t = .3), so it bends with the leg in squat/jump
   const shortD = (p, k) => {
-    const hx = HIP[k][0] + p.x, hy = HIP[k][1] + p.y, [kx, ky] = p['l' + k];
-    return `M${hx},${hy - 4} L${(hx + (kx - hx) * .55).toFixed(1)},${(hy - 4 + (ky - hy + 4) * .55).toFixed(1)}`;
+    const hx = HIP[k][0] + p.x, hy = HIP[k][1] + p.y - 4, [kx, ky, fx, fy] = p['l' + k], t = .3;
+    const at = (a, b, c) => ((1 - t) ** 2 * a + 2 * t * (1 - t) * b + t * t * c).toFixed(1);
+    return `M${hx},${hy} L${at(hx, kx, fx)},${at(hy, ky, fy)}`;
   };
   const limb = (d, w) => `<path d="${d(fr[0])}" stroke="${SKIN}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round">${anim('d', d)}</path>`;
   const face = FACE[state], [c1, c2] = SHIRT[state];
@@ -85,14 +87,14 @@ export function mascotSvg(state, idx = 0, still = false) {
   <ellipse cx="70" cy="153" rx="28" ry="4.5" fill="#000" opacity=".15">${anim('rx', p => 28 + Math.min(0, p.y) * .6)}</ellipse>
   ${['L', 'R'].map(k => limb(p => legD(p, k), 10)).join('')}
   ${['L', 'R'].map(k => `<g transform="translate(${fr[0]['l' + k].slice(2).join(' ')})">${move(p => p['l' + k].slice(2).join(' '))}<g transform="translate(0 3)">${shoe}</g></g>`).join('')}
-  ${['L', 'R'].map(k => `<path d="${shortD(fr[0], k)}" stroke="${SHORTS}" stroke-width="15" fill="none">${anim('d', p => shortD(p, k))}</path>`).join('')}
+  ${['L', 'R'].map(k => `<path d="${shortD(fr[0], k)}" stroke="${SHORTS}" stroke-width="15" stroke-linecap="round" fill="none">${anim('d', p => shortD(p, k))}</path>`).join('')}
   <g>${move(p => `${p.x} ${p.y}`)}
-    <path d="M55 101 L85 101 L85 111 L55 111 Z" fill="${SHORTS}"/>
-    <path d="M55 103.5 L85 103.5" stroke="#fff" stroke-width="1.5" opacity=".6"/>
-    <rect x="65" y="56" width="10" height="12" fill="${SKIN}"/>
-    <path d="M55 66 Q70 61 85 66 L84 104 L56 104 Z" fill="url(#shirt)"/>
-    <path d="M78 66 L85 66 L84 104 L79 104 Z" fill="#000" opacity=".08"/>
-    <path d="M63 63.5 Q70 73 77 63.5 Z" fill="${SKIN}"/>
+    <path d="M56 100 Q70 97 84 100 Q86.5 106 85 112 Q70 116 55 112 Q53.5 106 56 100 Z" fill="${SHORTS}"/>
+    <path d="M56.5 102.5 Q70 105.5 83.5 102.5" stroke="#fff" stroke-width="1.5" fill="none" opacity=".6"/>
+    <rect x="65" y="55" width="10" height="13" rx="4" fill="${SKIN}"/>
+    <path d="M56 65.5 Q63 61.5 70 62.5 Q77 61.5 84 65.5 Q87.5 84 84.5 103.5 Q70 107.5 55.5 103.5 Q52.5 84 56 65.5 Z" fill="url(#shirt)"/>
+    <path d="M79 64 Q84 64.5 84 65.5 Q87.5 84 84.5 103.5 Q82 104.5 80 105 Q83 84 79 64 Z" fill="#000" opacity=".07"/>
+    <path d="M63 63.5 Q70 73 77 63.5 Q70 65.5 63 63.5 Z" fill="${SKIN}"/>
     <g transform="${tilt}">
       <circle cx="49" cy="43" r="4" fill="${SKIN}"/><circle cx="91" cy="43" r="4" fill="${SKIN}"/>
       <circle cx="70" cy="40" r="21" fill="${SKIN}"/>

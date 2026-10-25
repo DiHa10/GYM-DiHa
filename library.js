@@ -160,6 +160,44 @@ export const LIBRARY = [
       ['Ab wheel', 'Lăn bánh xe bụng', 'Siết bụng, lăn ra xa trong tầm giữ được lưng thẳng rồi kéo về.'],
     ]],
   ] },
+  { group: 'Cầu lông', icon: '🏸', aliases: ['cầu lông', 'badminton'], subs: [
+    ['Bộ chân (footwork)', [
+      ['Six-corner footwork', 'Di chuyển 6 góc sân (米字步)', 'Bài kinh điển của cầu lông Trung Quốc: từ giữa sân bước ra 6 góc (2 lưới, 2 giữa, 2 cuối), mỗi lần đều về giữa và bước đệm.'],
+      ['Shadow badminton', 'Đánh bóng không cầu', 'Cầm vợt di chuyển và vung đủ động tác như đánh thật, 30–60 giây mỗi hiệp, nghỉ 30 giây.'],
+      ['Split step drill', 'Tập bước đệm', 'Nhún nhẹ, hai chân rộng hơn vai đúng lúc "đối thủ" chạm cầu, rồi bật ngay về hướng được gọi.'],
+      ['Side shuffle', 'Bước trượt ngang', 'Hạ thấp trọng tâm, trượt ngang nhanh, không bắt chéo chân, giữ vợt trước người.'],
+      ['Agility ladder', 'Thang dây nhanh nhẹn', 'Bước nhanh bằng mũi chân qua từng ô thang, mắt nhìn thẳng, tay đánh theo nhịp.'],
+      ['Multi-shuttle drill', 'Tập đa cầu (多球)', 'Người phát cầu liên tục 15–20 quả vào các góc, người tập di chuyển và đánh hết, nghỉ rồi lặp lại.'],
+    ]],
+    ['Sức bật & tốc độ', [
+      ['Jump squat', 'Bật nhảy squat', 'Ngồi xuống nửa chừng rồi bật thẳng lên, tiếp đất mềm bằng mũi chân và gối hơi cong.'],
+      ['Split jump', 'Bật đổi chân', 'Từ tư thế chùng chân, bật lên đổi chân trên không, tiếp đất lại thành chùng chân.'],
+      ['Lateral bound', 'Bật nhảy ngang 1 chân', 'Bật sang ngang bằng 1 chân, tiếp đất chân kia và giữ thăng bằng 1 giây.'],
+      ['Lateral cone hops', 'Bật ngang qua chóp', 'Hai chân chụm, bật qua lại chóp hoặc vạch kẻ thật nhanh, chạm đất ngắn.'],
+      ['Hurdle hops', 'Bật qua rào', 'Bật liên tục qua hàng rào thấp, dùng tay đánh đà, chạm đất ngắn.'],
+      ['Tuck jump', 'Bật nhảy co gối', 'Bật cao, kéo gối lên sát ngực, tiếp đất mềm rồi bật tiếp.'],
+      ['Box jump', 'Bật lên bục', 'Đánh tay bật lên bục bằng hai chân, đứng thẳng trên bục rồi bước xuống.'],
+      ['Double-under jump rope', 'Nhảy dây quay kép (双摇)', 'Bài nhảy dây phổ biến ở Trung Quốc: bật cao hơn bình thường, quay dây 2 vòng mỗi lần nhảy bằng cổ tay.'],
+    ]],
+    ['Cổ tay & cẳng tay', [
+      ['Reverse wrist curl', 'Cuốn cổ tay úp', 'Cẳng tay tì ghế, úp lòng bàn tay, nâng hạ cổ tay chậm, tạ nhẹ.'],
+      ['Wrist roller', 'Cuộn dây tạ cổ tay', 'Tay duỗi trước ngực, xoay cổ tay cuộn dây tạ lên rồi thả xuống chậm.'],
+      ['Heavy racket swing', 'Vung vợt nặng (có bao)', 'Vung vợt có bao hoặc vợt tập nặng theo đường đập cầu, 20–30 lần, cổ tay thả lỏng rồi bung lực.'],
+    ]],
+    ['Vai (phòng chấn thương)', [
+      ['Band external rotation', 'Xoay ngoài vai dây kháng lực', 'Khuỷu kẹp sát hông 90°, xoay cẳng tay ra ngoài chống dây, về chậm.'],
+      ['Band internal rotation', 'Xoay trong vai dây kháng lực', 'Khuỷu kẹp sát hông 90°, kéo cẳng tay vào bụng chống dây, về chậm.'],
+      ['Band pull-apart', 'Kéo giãn dây kháng lực', 'Tay thẳng trước ngực, kéo giãn dây sang hai bên, siết bả vai.'],
+    ]],
+    ['Sức mạnh đập cầu', [
+      ['Medicine ball slam', 'Đập bóng tạ 1 tay', 'Đưa bóng qua đầu như đập cầu, xoay thân và đập mạnh xuống sàn.'],
+      ['Medicine ball twist', 'Xoay người với bóng tạ', 'Cầm bóng trước ngực, xoay thân hết tầm sang hai bên, hông đứng vững.'],
+    ]],
+    ['Chân & thăng bằng', [
+      ['Single-leg deadlift', 'Deadlift 1 chân', 'Đứng 1 chân, gập hông, chân kia duỗi ra sau, lưng thẳng, giữ thăng bằng.'],
+      ['Lateral lunge', 'Chùng chân ngang', 'Bước rộng sang ngang, ngồi xuống chân bước, chân kia duỗi thẳng, đẩy về.'],
+    ]],
+  ] },
   { group: 'Cardio', icon: '🏃', aliases: ['cardio', 'chạy', 'đốt mỡ'], subs: [
     ['Máy cardio', [
       ['Treadmill', 'Chạy bộ máy', 'Khởi động 5 phút đi bộ, giữ nhịp thở đều, không bám tay vịn.'],
@@ -201,9 +239,15 @@ export const RATINGS = {
   'Russian twist': [3, 4, 2], 'Bicycle crunch': [4, 4, 3], 'Oblique crunch': [4, 5, 2], 'Plank': [5, 5, 3], 'Ab wheel': [2, 2, 5],
   'Treadmill': [3, 5, 4], 'Stationary bike': [5, 5, 4], 'Elliptical': [5, 5, 4], 'Rowing machine': [4, 3, 5],
   'Jump rope': [2, 3, 4], 'Burpee': [2, 3, 5], 'Mountain climber': [3, 4, 4], 'Star jump': [2, 4, 3],
+  'Six-corner footwork': [4, 3, 5], 'Shadow badminton': [5, 4, 4], 'Split step drill': [4, 4, 4], 'Side shuffle': [4, 5, 3], 'Agility ladder': [4, 4, 4], 'Multi-shuttle drill': [3, 3, 5],
+  'Jump squat': [3, 4, 5], 'Split jump': [2, 3, 5], 'Lateral bound': [3, 3, 5], 'Lateral cone hops': [3, 4, 4], 'Hurdle hops': [2, 3, 4], 'Tuck jump': [2, 3, 4], 'Box jump': [3, 3, 5], 'Double-under jump rope': [2, 2, 5],
+  'Reverse wrist curl': [3, 5, 3], 'Wrist roller': [3, 4, 4], 'Heavy racket swing': [3, 4, 4],
+  'Band external rotation': [5, 5, 4], 'Band internal rotation': [5, 5, 3], 'Band pull-apart': [5, 5, 3],
+  'Medicine ball slam': [3, 4, 4], 'Medicine ball twist': [4, 4, 3], 'Single-leg deadlift': [4, 3, 4], 'Lateral lunge': [3, 4, 4],
 };
 
-export const NO_PHOTO = new Set(['Burpee']);
+// Exercises without a photo in free-exercise-db -> icon shown instead
+export const NO_PHOTO = new Map([['Burpee', '🤸'], ...['Six-corner footwork', 'Shadow badminton', 'Split step drill', 'Agility ladder', 'Multi-shuttle drill', 'Heavy racket swing', 'Lateral lunge'].map(n => [n, '🏸'])]);
 export const photoSlug = name => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 // Flat list of a group's exercises, each tagged with its sub-area
 export const groupItems = g => g.subs.flatMap(([sub, items]) => items.map(i => [...i, sub]));

@@ -62,6 +62,7 @@ assert.equal(groupFor('Ngực + tay sau'), 'Ngực');
 assert.equal(groupFor('Tay sau'), 'Tay sau');
 assert.equal(groupFor('Lưng xô'), 'Lưng');
 assert.equal(groupFor(''), null);
+assert.equal(groupFor('Cầu lông'), 'Cầu lông');
 const allNames = LIBRARY.flatMap(g => groupItems(g).map(i => i[0].toLowerCase()));
 assert.equal(new Set(allNames).size, allNames.length, 'library names must be unique');
 for (const g of LIBRARY) for (const i of groupItems(g)) {
