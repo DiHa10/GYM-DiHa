@@ -1,4 +1,5 @@
 // Pure logic (no DOM) so it can be tested with node: `node test.mjs`
+import { groupFor } from './library.js';
 export const DAY_NAMES = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 export const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Monday first
 
@@ -141,21 +142,41 @@ export function bodyCheer(body, heightCm) {
   return `Dư ${info.diff} kg so với chuẩn. Muốn kim cân nhúc nhích thì phải thay đổi: bớt đồ ngọt, thêm cardio, ngủ đủ. Khoảng ${weeks} tuần là tới. 🔥`;
 }
 
+// [from, to) date strings for this week/month, or `back` periods earlier
+export function periodRange(kind, now, back = 0) {
+  if (kind === 'week') { const s = addDays(weekStart(now), -7 * back); return [ymd(s), ymd(addDays(s, 7))]; }
+  const s = new Date(now.getFullYear(), now.getMonth() - back, 1);
+  return [ymd(s), ymd(new Date(s.getFullYear(), s.getMonth() + 1, 1))];
+}
+
+export function periodStats(sessions, [from, to]) {
+  const ss = sessions.filter(s => s.date >= from && s.date < to), bad = ss.filter(s => s.kind === 'badminton');
+  return {
+    gym: ss.length - bad.length,
+    badminton: bad.length,
+    minutes: bad.reduce((n, s) => n + (s.minutes || 0), 0),
+    games: bad.reduce((n, s) => n + (s.games || 0), 0),
+    volume: ss.reduce((n, s) => n + s.exercises.reduce((m, e) => m + e.sets.reduce((k, x) => k + x.reps * (x.kg || 0), 0), 0), 0),
+    days: new Set(ss.map(s => s.date)).size,
+  };
+}
+
 // Recurring calendar events with alarm: phone calendar reminds on time, no server needed
 export function buildIcs(settings, now) {
   const ICS_DAY = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
   const [hh, mm] = settings.time.split(':');
   const stamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//GymMan//VI', 'CALSCALE:GREGORIAN'];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//GYMDIHA//VI', 'CALSCALE:GREGORIAN'];
   for (const d of settings.days) {
     let start = new Date(now);
     while (start.getDay() !== d) start = addDays(start, 1);
-    const muscle = (settings.plan[d] || '').replace(/[,;\\\n]/g, ' ');
+    const muscle = (settings.plan[d] || '').replace(/[,;\\\n]/g, ' '), bad = groupFor(muscle) === 'Cầu lông';
+    // UID kept as gymman-* so re-importing updates the old events instead of duplicating them
     lines.push('BEGIN:VEVENT', `UID:gymman-${d}@local`, `DTSTAMP:${stamp}`,
       `DTSTART:${ymd(start).replace(/-/g, '')}T${hh}${mm}00`, 'DURATION:PT1H',
       `RRULE:FREQ=WEEKLY;BYDAY=${ICS_DAY[d]}`,
-      `SUMMARY:💪 Đi tập gym${muscle ? ' - ' + muscle : ''}`,
-      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Đến giờ tập rồi! Man đang đợi bạn 💪', 'TRIGGER:PT0M', 'END:VALARM',
+      bad ? 'SUMMARY:🏸 Đánh cầu lông' : `SUMMARY:💪 Đi tập gym${muscle ? ' - ' + muscle : ''}`,
+      'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${bad ? 'Xách vợt lên, sân đang chờ! 🏸' : 'Đến giờ tập rồi! Man đang đợi bạn 💪'}`, 'TRIGGER:PT0M', 'END:VALARM',
       'END:VEVENT');
   }
   lines.push('END:VCALENDAR');

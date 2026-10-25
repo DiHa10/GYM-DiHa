@@ -7,6 +7,22 @@ const BASE = { aL: [50, 88, 48, 106], aR: [90, 88, 92, 106], lL: [62, 128, 61, 1
 const F = o => ({ ...BASE, ...o });
 const SAD = { aL: [52, 90, 54, 108], aR: [88, 90, 86, 108], lL: [63, 129, 61, 148], lR: [77, 129, 79, 148], y: 3 };
 
+// Shown first on badminton days; rk = racket in the right hand
+export const BADMINTON_ACTIONS = {
+  celebrate: [
+    { name: 'Nhảy đập cầu', dur: .9, rk: true, frames: [F({ aL: [46, 56, 42, 40], aR: [98, 54, 96, 34], y: 5, lL: [58, 126, 60, 148], lR: [82, 126, 80, 148] }),
+      F({ aL: [46, 72, 40, 84], aR: [94, 60, 86, 78], y: -14, lL: [58, 118, 54, 134], lR: [82, 118, 86, 134] })] },
+  ],
+  happy: [
+    { name: 'Đập cầu', dur: 1, rk: true, frames: [F({ aL: [46, 56, 40, 40], aR: [98, 54, 96, 34], x: -2 }),
+      F({ aL: [48, 80, 50, 96], aR: [94, 62, 86, 80], x: 2, y: 2 })] },
+    { name: 'Thủ thế đỡ cầu', dur: 1.2, rk: true, frames: [
+      F({ aL: [46, 80, 40, 72], aR: [94, 80, 102, 70], x: -4, y: 8, lL: [50, 128, 48, 148], lR: [86, 128, 88, 148] }),
+      F({ aL: [46, 80, 40, 72], aR: [94, 80, 102, 70], x: 4, y: 8, lL: [54, 128, 52, 148], lR: [90, 128, 92, 148] })] },
+  ],
+};
+export const actionsFor = (state, badminton) => badminton ? [...(BADMINTON_ACTIONS[state] || []), ...ACTIONS[state]] : ACTIONS[state];
+
 export const ACTIONS = {
   celebrate: [
     { name: 'Nhảy ăn mừng', dur: .8, db: true, frames: [F({ aL: [44, 52, 40, 34], aR: [96, 52, 100, 34] }),
@@ -57,11 +73,12 @@ const FACE = {
 };
 const openEyes = dy => `<g class="eyes">${[62, 78].map(x => `<ellipse cx="${x}" cy="${42 + dy}" rx="3" ry="4" fill="${INK}"/><circle cx="${x + 1}" cy="${40.5 + dy}" r="1.1" fill="#fff"/>`).join('')}</g>`;
 
+const racket = `<path d="M0 0 L9 -11" stroke="#222" stroke-width="3" stroke-linecap="round"/><ellipse cx="14" cy="-18" rx="5.5" ry="7.5" transform="rotate(38 14 -18)" fill="rgb(255 255 255 / .35)" stroke="#222" stroke-width="2"/>`;
 const dumbbell = `<rect x="-12" y="-2" width="24" height="4" rx="1" fill="#555"/><rect x="-15" y="-7" width="6" height="14" rx="1.5" fill="${INK}"/><rect x="9" y="-7" width="6" height="14" rx="1.5" fill="${INK}"/>`;
 const shoe = `<path d="M-7 3 Q-8 -4 0 -4 Q8 -4 11 3 Z" fill="#fff" stroke="#bbb" stroke-width="1"/><path d="M-3 -1 L5 -1" stroke="#6a7cb0" stroke-width="1.6"/>`;
 
-export function mascotSvg(state, idx = 0, still = false) {
-  const list = ACTIONS[state], act = list[idx % list.length];
+export function mascotSvg(state, idx = 0, still = false, badminton = false) {
+  const list = actionsFor(state, badminton), act = list[idx % list.length];
   const fr = still ? [act.frames[0], act.frames[0]] : [...act.frames, act.frames[0]];
   const dur = act.dur + 's', kt = fr.map((_, i) => (i / (fr.length - 1)).toFixed(3)).join(';');
   const ease = `calcMode="spline" keyTimes="${kt}" keySplines="${Array(fr.length - 1).fill('.45 0 .55 1').join(';')}" dur="${dur}" repeatCount="indefinite"`;
@@ -109,6 +126,7 @@ export function mascotSvg(state, idx = 0, still = false) {
       ${face.mouth}${face.extra || ''}
     </g>
     ${['L', 'R'].map(k => limb(p => armD(p, k), 9)).join('')}
+    ${act.rk ? `<g transform="translate(${fr[0].aR.slice(2).join(' ')})">${move(p => p.aR.slice(2).join(' '))}${racket}</g>` : ''}
     ${act.db ? ['L', 'R'].map(k => `<g transform="translate(${fr[0]['a' + k].slice(2).join(' ')})">${move(p => p['a' + k].slice(2).join(' '))}${dumbbell}</g>`).join('') : ''}
   </g>
 </svg>`;

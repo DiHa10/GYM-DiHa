@@ -96,6 +96,12 @@ label.inline input { width: 80px; margin: 0; }
 .kind-switch button { flex: 1; margin: 0; }
 .kind-switch button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 #bad-fields select { width: 100%; margin-top: 4px; padding: 10px; }
+.stats-switch { margin: 0; flex: 0 1 auto; }
+.stats-switch button { padding: 5px 10px; font-size: .85rem; white-space: nowrap; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 8px; margin-top: 8px; }
+.stats-grid b { display: block; font-size: 1.25rem; }
+.stats-grid span { color: var(--muted); font-size: .78rem; }
+#stats-diff.up { color: var(--ok); } #stats-diff.down { color: var(--bad); }
 .prev { color: var(--accent); font-size: .8rem; min-height: 1em; }
 .item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
 .item .row { justify-content: space-between; flex-wrap: nowrap; }

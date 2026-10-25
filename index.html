@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4a7fa7">
   <meta name="color-scheme" content="light dark">
   <script>try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch {}</script>
-  <title>Gym Man</title>
+  <title>GYM DIHA</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -36,6 +36,13 @@
       <div class="stats">
         <div class="card stat"><b id="streak"></b><span>tuần liền đủ buổi 🔥</span></div>
         <div class="card stat"><b id="total"></b><span>buổi đã tập 💪</span></div>
+      </div>
+      <div class="card">
+        <div class="row between"><h2>Thống kê</h2>
+          <div class="kind-switch stats-switch"><button type="button" data-stats="week">Tuần này</button><button type="button" data-stats="month">Tháng này</button></div>
+        </div>
+        <div id="stats-grid" class="stats-grid"></div>
+        <p id="stats-diff" class="hint"></p>
       </div>
       <button class="primary big" data-go="log">+ Ghi buổi tập hôm nay</button>
     </section>

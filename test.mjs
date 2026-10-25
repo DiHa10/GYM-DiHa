@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { LIBRARY, groupFor, groupItems, NO_PHOTO, photoSlug, RATINGS } from './library.js';
 import { existsSync } from 'node:fs';
-import { weekStart, ymd, weekDone, mascotState, needsReminder, streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs, defaultData } from './logic.js';
+import { weekStart, ymd, weekDone, mascotState, needsReminder, streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs, defaultData, periodRange, periodStats } from './logic.js';
 
 const S = (date, exercises = []) => ({ id: date, date, exercises });
 const ex = (name, ...kgs) => ({ name, sets: kgs.map(kg => ({ reps: 10, kg })) });
@@ -62,6 +62,17 @@ const ics = buildIcs(data.settings, wed);
 assert.match(ics, /DTSTART:20261021T180000/);
 assert.match(ics, /RRULE:FREQ=WEEKLY;BYDAY=MO/);
 assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 3);
+const badIcs = buildIcs({ ...data.settings, days: [0], plan: { 0: 'Cầu lông' } }, wed);
+assert.match(badIcs, /SUMMARY:🏸 Đánh cầu lông/);
+assert.doesNotMatch(badIcs, /Đi tập gym/);
+
+assert.deepEqual(periodRange('week', wed), ['2026-10-19', '2026-10-26']);
+assert.deepEqual(periodRange('week', wed, 1), ['2026-10-12', '2026-10-19']);
+assert.deepEqual(periodRange('month', wed), ['2026-10-01', '2026-11-01']);
+assert.deepEqual(periodRange('month', new Date(2026, 0, 5), 1), ['2025-12-01', '2026-01-01']);
+const ps = [S('2026-10-18', [ex('Squat', 100)]), S('2026-10-19', [ex('Squat', 50, 60)]), S('2026-10-21', [ex('Bench', 40)]),
+  { id: 'b', date: '2026-10-25', exercises: [], kind: 'badminton', minutes: 90, games: 5 }, S('2026-10-26', [ex('Squat', 80)])];
+assert.deepEqual(periodStats(ps, periodRange('week', wed)), { gym: 2, badminton: 1, minutes: 90, games: 5, volume: 1500, days: 3 });
 
 assert.equal(groupFor('Ngực + tay sau'), 'Ngực');
 assert.equal(groupFor('Tay sau'), 'Tay sau');

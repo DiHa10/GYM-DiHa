@@ -1,8 +1,8 @@
 import {
   DAY_NAMES, WEEK_ORDER, defaultData, ymd, weekStart, weekDone, mascotState, needsReminder,
-  streaks, personalRecords, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
+  streaks, personalRecords, periodRange, periodStats, lastPerformance, exerciseHistory, bmiInfo, bodyCheer, buildIcs,
 } from './logic.js';
-import { mascotSvg, ACTIONS } from './mascot.js';
+import { mascotSvg, actionsFor } from './mascot.js';
 import { icon, hydrateIcons } from './icons.js';
 hydrateIcons();
 import { LIBRARY, NO_PHOTO, photoSlug, groupFor, groupItems, RATINGS, RATING_LABELS } from './library.js';
@@ -35,6 +35,13 @@ const MSG = {
   happy: ['Đang đúng tiến độ, giữ vững nhé! 💪', 'Ngon lành! Cứ thế mà tiến! 🚀', 'Man sẵn sàng tập cùng bạn! 🏋️'],
   worried: ['Hơi chậm 1 buổi rồi, tập bù nha! 😬', 'Man hơi lo... hôm nay đi tập không? 🥺', 'Chậm chút thôi, vẫn kịp mà! ⏰'],
   sad: ['Man nhớ phòng gym lắm rồi... 😢', 'Bỏ nhiều buổi quá rồi, quay lại đi bạn! 💔', 'Một buổi thôi cũng được, bắt đầu lại nhé! 🙏'],
+};
+
+// Mood lines on badminton days (celebrate keeps the generic lines)
+const MSG_BADMINTON = {
+  happy: ['Sân đang chờ, xách vợt lên! 🏸', 'Hôm nay đập cầu cho đã tay nào! 🏸', 'Giữ nhịp chân, đánh hết từng cầu! 🏸'],
+  worried: ['Chậm 1 buổi rồi, ra sân bù ngay hôm nay nha! 🏸', 'Vợt nằm trong túi lâu quá rồi đó... 🥺'],
+  sad: ['Sân cầu nhớ bạn lắm rồi... quay lại đi! 😢', 'Bỏ nhiều buổi quá, đánh 1 trận thôi cũng được! 🏸'],
 };
 
 // [câu nói, tác giả]. Câu của người nổi tiếng là bản dịch; câu ghi "GYM DIHA" là lời app tự viết.
@@ -91,15 +98,33 @@ function nextQuote() {
 $('#new-quote').onclick = nextQuote;
 setInterval(() => { if (!document.hidden) nextQuote(); }, 60_000); // new quote every minute
 
+// ---------- Week / month stats ----------
+let statsKind = 'week';
+const fmtVolume = kg => kg >= 1000 ? `${(kg / 1000).toFixed(1)} tấn` : `${kg} kg`;
+function drawStats() {
+  const now = new Date(), cur = periodStats(data.sessions, periodRange(statsKind, now)), prev = periodStats(data.sessions, periodRange(statsKind, now, 1));
+  const diff = cur.gym + cur.badminton - prev.gym - prev.badminton, label = statsKind === 'week' ? 'tuần trước' : 'tháng trước';
+  const cell = (v, l) => `<div><b>${v}</b><span>${l}</span></div>`;
+  $('#stats-grid').innerHTML = cell(cur.gym, 'buổi gym') + cell(cur.badminton, 'buổi cầu lông')
+    + cell(`${+(cur.minutes / 60).toFixed(1)} giờ`, 'đánh cầu') + cell(cur.games, 'trận') + cell(fmtVolume(cur.volume), 'tổng tạ') + cell(cur.days, 'ngày có tập');
+  $('#stats-diff').textContent = diff > 0 ? `▲ ${diff} buổi so với ${label}` : diff < 0 ? `▼ ${-diff} buổi so với ${label}` : `Bằng ${label}`;
+  $('#stats-diff').className = 'hint ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : '');
+  document.querySelectorAll('[data-stats]').forEach(b => b.classList.toggle('on', b.dataset.stats === statsKind));
+}
+document.querySelectorAll('[data-stats]').forEach(b => b.onclick = () => { statsKind = b.dataset.stats; drawStats(); });
+
 // ---------- Mascot: cycles through actions of its mood, tap for next ----------
-let mState, actIdx = 0;
+let mState, mBad = false, actIdx = 0;
+// Badminton day: today's plan is "Cầu lông" or today's last session was badminton
+const badmintonDay = now => groupFor(data.settings.plan[now.getDay()]) === 'Cầu lông'
+  || data.sessions.filter(s => s.date === ymd(now)).at(-1)?.kind === 'badminton';
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 function drawMascot() {
   const confetti = mState === 'celebrate'
     ? Array.from({ length: 14 }, (_, i) => `<span class="confetti" style="left:${(i * 37) % 100}%;animation-duration:${2 + (i % 4) * .6}s;animation-delay:${(i % 7) * .3}s">${['🎉', '✨', '💪', '⭐'][i % 4]}</span>`).join('')
     : '';
-  const acts = ACTIONS[mState];
-  $('#mascot').innerHTML = confetti + mascotSvg(mState, actIdx, still);
+  const acts = actionsFor(mState, mBad);
+  $('#mascot').innerHTML = confetti + mascotSvg(mState, actIdx, still, mBad);
   $('#mascot-action').textContent = `Man đang: ${acts[actIdx % acts.length].name} · chạm để đổi`;
 }
 // Next action with a short fade, so the pose change is not a hard jump
@@ -114,10 +139,10 @@ setInterval(() => { if (!document.hidden) nextAction(); }, 7000);
 // ---------- Render ----------
 function render() {
   const now = new Date(), today = ymd(now), { settings, sessions } = data;
-  const state = mascotState(data, now), msgs = MSG[state];
+  const state = mascotState(data, now), bad = badmintonDay(now), msgs = (bad && MSG_BADMINTON[state]) || MSG[state];
 
   // Home
-  if (state !== mState) { mState = state; actIdx = 0; drawMascot(); }
+  if (state !== mState || bad !== mBad) { mState = state; mBad = bad; actIdx = 0; drawMascot(); }
   $('#mascot-msg').textContent = msgs[now.getDate() % msgs.length];
   quoteIdx ??= Math.floor(new Date(today).getTime() / 864e5) % QUOTES.length; // new quote each day
   showQuote();
@@ -137,7 +162,9 @@ function render() {
 
   const banner = $('#banner');
   banner.hidden = !needsReminder(data, now);
-  banner.textContent = `⏰ Đã quá ${settings.time} rồi! Hôm nay có lịch tập${settings.plan[now.getDay()] ? ' ' + settings.plan[now.getDay()] : ''}, đi thôi!`;
+  banner.textContent = bad ? `⏰ Đã quá ${settings.time} rồi! Hôm nay có lịch cầu lông, xách vợt ra sân thôi! 🏸`
+    : `⏰ Đã quá ${settings.time} rồi! Hôm nay có lịch tập${settings.plan[now.getDay()] ? ' ' + settings.plan[now.getDay()] : ''}, đi thôi!`;
+  drawStats();
   $('#backup-banner').hidden = !(sessions.length >= 5 && Date.now() - (data.lastBackup || 0) > 14 * 864e5);
 
   // History
@@ -580,8 +607,9 @@ async function checkReminder() {
   if (!needsReminder(data, now) || window.Notification?.permission !== 'granted' || localStorage.getItem('notified') === ymd(now)) return;
   localStorage.setItem('notified', ymd(now));
   const reg = await navigator.serviceWorker?.getRegistration();
-  const body = `Hôm nay có lịch tập${data.settings.plan[now.getDay()] ? ' ' + data.settings.plan[now.getDay()] : ''}. Man đang đợi bạn 💪`;
-  reg ? reg.showNotification('Đến giờ tập rồi!', { body, icon: 'icon-192.png', tag: 'gym' }) : new Notification('Đến giờ tập rồi!', { body });
+  const bad = badmintonDay(now), title = bad ? 'Đến giờ đánh cầu rồi!' : 'Đến giờ tập rồi!';
+  const body = bad ? 'Sân đang chờ, xách vợt lên! 🏸' : `Hôm nay có lịch tập${data.settings.plan[now.getDay()] ? ' ' + data.settings.plan[now.getDay()] : ''}. Man đang đợi bạn 💪`;
+  reg ? reg.showNotification(title, { body, icon: 'icon-192.png', tag: 'gym' }) : new Notification(title, { body });
 }
 
 Object.keys(localStorage).filter(k => k.startsWith('notified-')).forEach(k => localStorage.removeItem(k)); // old per-day keys
